@@ -30,13 +30,22 @@
     <ClInclude Include="RecordManager.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="MiniSql.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="Attribute.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="Condition.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Server.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Block.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="File.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Index.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
@@ -53,10 +62,7 @@
     <ClCompile Include="RecordManager.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="Attribute.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="Condition.cpp">
+    <ClCompile Include="Server.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
