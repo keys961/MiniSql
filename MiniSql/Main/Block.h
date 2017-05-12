@@ -16,7 +16,7 @@ public:
 	friend class BufferManager;
 
 private:
-	char* address; //Content address, C++ doesn't have byte type
+	char* address; //Content address w/o head, C++ doesn't have byte type
 	Block* pre;
 	Block* next;
 	bool dirty;//need to write back
