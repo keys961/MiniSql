@@ -24,12 +24,39 @@
     <ClInclude Include="targetver.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="BufferManager.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="RecordManager.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="MiniSql.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Attribute.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Condition.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="Main.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="BufferManager.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="RecordManager.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Attribute.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Condition.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
