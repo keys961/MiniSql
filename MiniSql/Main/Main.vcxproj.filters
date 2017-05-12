@@ -48,6 +48,9 @@
     <ClInclude Include="Index.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="CatalogManager.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -63,6 +66,9 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="Server.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="CatalogManager.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

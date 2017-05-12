@@ -141,6 +141,7 @@
     <ClInclude Include="Attribute.h" />
     <ClInclude Include="Block.h" />
     <ClInclude Include="BufferManager.h" />
+    <ClInclude Include="CatalogManager.h" />
     <ClInclude Include="Condition.h" />
     <ClInclude Include="File.h" />
     <ClInclude Include="Index.h" />
@@ -151,6 +152,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="BufferManager.cpp" />
+    <ClCompile Include="CatalogManager.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="RecordManager.cpp" />
     <ClCompile Include="Server.cpp" />

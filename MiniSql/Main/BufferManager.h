@@ -21,13 +21,13 @@ public:
 	void setUsedSize(Block& block, size_t usage);
 	size_t getUsedSize(Block& block);
 	char* getContent(Block& block);
-	int getBlockSize()
+	static int getBlockSize()//get size w/o head
 	{
 		return MAX_BLOCK_SIZE - sizeof(size_t);
 	}
 
 private:
-	File* filehead;
+	File* filehead; 
 	File filePool[MAX_FILE_NUM];
 	Block blockPool[MAX_BLOCK_NUM];
 	int fileNum;

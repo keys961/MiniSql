@@ -17,9 +17,11 @@ public:
 
 private:
 	char* address; //Content address w/o head, C++ doesn't have byte type
+	//The first 4 bit is used to store usedSize, actually, 
+	//there's nothing in first 4 bit, the size is stored in size_t usedSize
 	Block* pre;
 	Block* next;
 	bool dirty;//need to write back
 	bool lru;//LRU flag
-	size_t usedSize;
+	size_t usedSize;// the byte size that the block have used. The total size of the block is MAX_BLOCK_SIZE
 };
