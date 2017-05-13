@@ -283,7 +283,7 @@ char * BufferManager::getContent(Block & block)
 //Init an unused file node
 void BufferManager::initFile(File & file)
 {
-	file.next = file.pre = false;
+	file.next = file.pre = NULL;
 	file.head = NULL;
 	file.pin = false;
 }

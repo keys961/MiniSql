@@ -39,9 +39,6 @@
     <ClInclude Include="Server.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="Block.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="File.h">
       <Filter>头文件</Filter>
     </ClInclude>

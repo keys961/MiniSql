@@ -82,7 +82,7 @@ bool Condition::compare(int value)
 
 bool Condition::compare(float value)
 {
-	float cmpValue = atof(comparedValue.c_str());
+	float cmpValue = (float)atof(comparedValue.c_str());
 	switch (this->operateType)
 	{
 	case INEQUAL: return cmpValue != value;

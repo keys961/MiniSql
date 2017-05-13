@@ -1,14 +1,14 @@
 #pragma once
 #include "File.h"
-#include "Block.h"
 
 static int replacedBlock = -1;
 
 class BufferManager
 {
-public:
+public:	
 	BufferManager();
 	~BufferManager();
+
 	File* getFile(const string fileName, bool pin = false);
 	Block* getBlock(File* file, Block* block, bool pin = false);
 	Block* getBlockHead(File* file);
@@ -21,15 +21,15 @@ public:
 	void setUsedSize(Block& block, size_t usage);
 	size_t getUsedSize(Block& block);
 	char* getContent(Block& block);
-	static int getBlockSize()//get size w/o head
+	int getBlockSize()//get size w/o head
 	{
 		return MAX_BLOCK_SIZE - sizeof(size_t);
 	}
 
 private:
-	File* filehead; 
-	File filePool[MAX_FILE_NUM];
-	Block blockPool[MAX_BLOCK_NUM];
+	File* filehead; //Head ptr to File
+	File filePool[MAX_FILE_NUM];//Slots of file, can be tables or indices
+	Block blockPool[MAX_BLOCK_NUM];//Slots of block
 	int fileNum;
 	int blockNum;
 
@@ -37,6 +37,5 @@ private:
 	void initBlock(Block& block);
 	void writeToDisk(string fileName, Block* block);
 	void writeAllToDisk();
-	//size_t getUsingSize(Block* block);
 };
 
