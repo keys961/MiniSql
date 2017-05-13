@@ -84,3 +84,12 @@ string RecordManager::getIndexFileName(string indexName)
 {
 	return "Index_" + indexName;
 }
+
+int RecordManager::findRecordInBlock(string tableName, vector<Condition*> conditionList, Block * block)
+{
+	if (!block)
+		return -1;
+	int count = 0;
+	char* beginAddr = bufferManager.getContent(*block);
+
+}
