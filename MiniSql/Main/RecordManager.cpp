@@ -13,7 +13,7 @@ RecordManager::~RecordManager()
 //Create empty table file
 bool RecordManager::createTable(string tableName)
 {
-	string fileName = getTableFileName(tableName);
+	string fileName = (tableName);
 	FILE* fp = fopen(fileName.c_str(), "w+");
 	if (!fp)
 		return false;
@@ -23,7 +23,7 @@ bool RecordManager::createTable(string tableName)
 //Drop table file & clear relative slots
 bool RecordManager::dropTable(string tableName)
 {
-	string fileName = getTableFileName(tableName);
+	string fileName = (tableName);
 	bufferManager.deleteFile(fileName);//Clear slots
 	if (remove(fileName.c_str())) //Remove file from disk
 		return false;
@@ -32,7 +32,7 @@ bool RecordManager::dropTable(string tableName)
 //Create empty index file
 bool RecordManager::createIndex(string indexName)
 {
-	string fileName = getIndexFileName(indexName);
+	string fileName = (indexName);
 	FILE* fp = fopen(fileName.c_str(), "w+");
 	if (!fp)
 	{
@@ -45,7 +45,7 @@ bool RecordManager::createIndex(string indexName)
 //Drop index file & clear relative slots
 bool RecordManager::dropIndex(string indexName)
 {
-	string fileName = getIndexFileName(indexName);
+	string fileName = (indexName);
 	bufferManager.deleteFile(fileName);//Clear slots
 	if (remove(fileName.c_str())) //Remove file from disk
 		return false;
@@ -73,6 +73,10 @@ int RecordManager::insertRecord(string tableName, string record, int size)
 		btemp = bufferManager.getNextBlock(ftemp, btemp);
 	}
 	return -1;
+}
+int RecordManager::findRecord(string tableName, vector<Condition*> conditionList)
+{
+	return 0;
 }
 //Return table file name
 string RecordManager::getTableFileName(string tableName)

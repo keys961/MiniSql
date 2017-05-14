@@ -18,15 +18,34 @@ class CatalogManager
 	};*/
 public:
 
-	const static int UNKNOWN_FILE = -1;
+	/*const static int UNKNOWN_FILE = -1;
 	const static int TABLE_FILE = 1;
-	const static int INDEX_FILE = 2;
+	const static int INDEX_FILE = 2;*/
 
 	BufferManager bufferManager;
 	CatalogManager();
 	~CatalogManager();
+	//Operation on table info
 	bool addTable(string tableName, vector<Attribute>* attriList, string pKeyName, int pKeyPos);
 	bool findTable(string tableName);
 	bool dropTable(string tableName);
+	int getRecordNum(string tableName);
+	bool updateRecordNum(string tableName, int num);
+	size_t getRecordSize(string tableName);
+	//Operation on attributes
+	bool getAttribute(string tableName, vector<Attribute>* attriList);
+	bool setIndexOnAttribute(string tableName, string attriName, string indexName);
+	size_t getTypeSize(int type);
+	
+
+	//Operation on indices
+	bool addIndex(string indexName, string tableName, string attriName, int type);
+	bool findIndex(string indexName);
+	bool getIndex(vector<Index>* indexList, string tableName = "");
+	int getIndexType(string indexName);
+	bool dropIndex(string indexName);
+
+private:
+	bool getAllIndice(vector<Index>* indexList);
 };
 

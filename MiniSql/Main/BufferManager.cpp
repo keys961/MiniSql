@@ -30,6 +30,8 @@ BufferManager::~BufferManager()
 }
 
 //Get and add file if required (not find file in para list)
+//If you want to load File to the block
+//First call getFile, then call getBlock(file, NULL) to add 1 block of the file
 File * BufferManager::getFile(const string fileName, bool pin)
 {
 	Block* btemp = NULL;
@@ -133,6 +135,7 @@ Block * BufferManager::getBlock(File * file, Block * block, bool pin)
 					if (temp == file->head)//Update head
 						file->head = temp->next;
 					replacedBlock = i;
+					writeToDisk(temp->fileName, block);//Right back to disk
 					initBlock(*temp);
 					break;
 				}
