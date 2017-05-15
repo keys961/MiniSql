@@ -8,7 +8,6 @@ CatalogManager::CatalogManager()
 {
 }
 
-
 CatalogManager::~CatalogManager()
 {
 }
@@ -31,7 +30,7 @@ bool CatalogManager::addTable(string tableName, vector<Attribute>* attriList, st
 		addrBegin++;//1 byte
 		*addrBegin = (*attriList).size();//Third not attribute number
 		addrBegin++;//1 byte
-		for (int i = 0; i < (*attriList).size(); i++)
+		for (int i = 0; i < (*attriList).size(); i++)//Copy attributes
 		{
 			memcpy(addrBegin, &(*attriList)[i], sizeof(Attribute));
 			addrBegin += sizeof(Attribute);
@@ -129,6 +128,7 @@ bool CatalogManager::getAttribute(string tableName, vector<Attribute>* attriList
 }
 //Set attribute in table as index with indexName
 //If revoke, set indexName as NULL or ""
+//It doesn't call addIndex method
 bool CatalogManager::setIndexOnAttribute(string tableName, string attriName, string indexName)
 {
 	File* ftemp = bufferManager.getFile(tableName.c_str());
@@ -193,7 +193,8 @@ bool CatalogManager::findIndex(string indexName)
 	{
 		char* addrBegin = bufferManager.getContent(*btemp);
 		Index* index = (Index*)addrBegin;
-		int count = bufferManager.getUsedSize(*btemp) / sizeof(Index);
+		int count = (bufferManager.getUsedSize(*btemp)-sizeof(size_t))
+			/ sizeof(Index);
 		for (int i = 0; i < count; i++, index++)
 		{
 			if (index->indexName == indexName)
@@ -214,7 +215,8 @@ bool CatalogManager::getIndex(vector<Index>* indexList, string tableName)
 	if (btemp)
 	{
 		index = (Index*)bufferManager.getContent(*btemp);
-		int size = bufferManager.getUsedSize(*btemp) / sizeof(Index);
+		int size = (bufferManager.getUsedSize(*btemp) - sizeof(size_t))
+			/ sizeof(Index);
 		for (int i = 0; i < size; i++, index++)
 		{
 			if (index->tableName == tableName)
@@ -233,7 +235,8 @@ int CatalogManager::getIndexType(string indexName)
 	if (btemp)
 	{
 		index = (Index*)bufferManager.getContent(*btemp);
-		int size = bufferManager.getUsedSize(*btemp) / sizeof(Index);
+		int size = (bufferManager.getUsedSize(*btemp) - sizeof(size_t)) 
+			/ sizeof(Index);
 		for (int i = 0; i < size; i++, index++)
 			if (index->indexName == indexName)
 				return index->type;
@@ -249,7 +252,8 @@ bool CatalogManager::dropIndex(string indexName)
 	{
 		char* addr = bufferManager.getContent(*btemp);
 		Index* index = (Index*)addr;
-		int count = bufferManager.getUsedSize(*btemp) / sizeof(Index);
+		int count = (bufferManager.getUsedSize(*btemp) - sizeof(size_t))
+			/ sizeof(Index);
 		int i = 0;
 		for (; i < count; i++, index++)
 			if (index->indexName == indexName)
@@ -272,7 +276,8 @@ bool CatalogManager::getAllIndice(vector<Index>* indexList)
 	if (btemp)
 	{
 		index = (Index*)bufferManager.getContent(*btemp);
-		int size = bufferManager.getUsedSize(*btemp) / sizeof(Index);
+		int size = (bufferManager.getUsedSize(*btemp) - sizeof(size_t))
+			/ sizeof(Index);
 		for (int i = 0; i < size; i++, index++)
 			indexList->push_back(*index);
 		return true;

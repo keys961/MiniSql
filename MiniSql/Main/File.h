@@ -10,7 +10,7 @@ using namespace std;
 class Block
 {
 public:
-	int offset; //Offset position in a block
+	int offset; //Offset position in a block, file relative
 	bool pin;
 	bool end; //End of file
 	string fileName; //block is whom?
