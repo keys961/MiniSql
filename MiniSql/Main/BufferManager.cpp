@@ -15,6 +15,7 @@ BufferManager::BufferManager()
 	for (int i = 0; i < MAX_BLOCK_NUM; i++)
 	{
 		blockPool[i].address = new char[MAX_BLOCK_SIZE];
+		//frequency[i] = 0;
 		initBlock(blockPool[i]);
 	}
 }
@@ -184,13 +185,10 @@ Block * BufferManager::getBlock(File * file, Block * block, bool pin)
 	temp->pin = pin;
 	temp->fileName = file->fileName;
 	FILE* fp = fopen(file->fileName.c_str(), "ab+");
-	fseek(fp, temp->offset * (MAX_BLOCK_SIZE - sizeof(size_t)), 0);
-	temp->usedSize = fread(temp->address + sizeof(size_t),
-		1, (MAX_BLOCK_SIZE - sizeof(size_t)), fp) + sizeof(size_t);//Just read w/o head
-	*(size_t*)(temp->address) = temp->usedSize;
-	setUsedSize(*temp, temp->usedSize);
-	if (temp->usedSize == 0)//Read empty file. allocate an empty block just for insertion
+	fseek(fp, temp->offset * (MAX_BLOCK_SIZE), 0);//If rest space cannot hold a record, set 0 in the file
+	if (fread(temp->address, 1, (MAX_BLOCK_SIZE), fp) == 0)//Read with head
 		temp->end = true;
+	temp->usedSize = *(size_t*)(temp->address);
 	return temp;
 }
 
@@ -301,6 +299,7 @@ size_t BufferManager::getUsedSize(Block & block)
 //Get all content of block w/o header
 char * BufferManager::getContent(Block & block)
 {
+	//frequency[((&block) - blockPool) / sizeof(Block)]++;
 	return block.address + sizeof(size_t);//add header
 }
 //Init an unused file node
@@ -334,8 +333,8 @@ void BufferManager::writeToDisk(string fileName, Block * block)
 	if (block->dirty == false)
 		return;
 	FILE* fp = fopen(fileName.c_str(), "rb+");
-	fseek(fp, block->offset * (MAX_BLOCK_SIZE - sizeof(size_t)), 0);
-	fwrite(block->address + sizeof(size_t), 1, block->usedSize - sizeof(size_t), fp);
+	fseek(fp, block->offset * (MAX_BLOCK_SIZE), 0);
+	fwrite(block->address, 1, block->usedSize, fp);
 	fclose(fp);
 }
 //Flush all to disk

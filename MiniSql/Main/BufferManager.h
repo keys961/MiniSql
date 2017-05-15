@@ -32,6 +32,7 @@ private:
 	File* filehead; //Head ptr to File
 	File filePool[MAX_FILE_NUM];//Slots of file, can be tables or indices
 	Block blockPool[MAX_BLOCK_NUM];//Slots of block
+	//int frequency[MAX_BLOCK_NUM];
 	int fileNum;
 	int blockNum;
 
