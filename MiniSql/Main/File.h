@@ -1,18 +1,21 @@
-#pragma once
+#ifndef FILE_H
+#define FILE_H
+
+
 #include <string>
 //#include "BufferManager.h"
 using namespace std;
 
 #define MAX_FILE_NUM 40
 #define MAX_BLOCK_NUM 300
-#define MAX_BLOCK_SIZE 8092 //8KB
+#define MAX_BLOCK_SIZE 4096 //4KB
 
 class Block
 {
 public:
 	int offset; //Offset position in a block, file relative
 	bool pin;
-	bool end; //End of file
+	bool end; //End of file, actually no use
 	string fileName; //block is whom?
 	friend class BufferManager;
 
@@ -37,3 +40,4 @@ public:
 	File* next; //Next file node
 };
 
+#endif // !FILE_H

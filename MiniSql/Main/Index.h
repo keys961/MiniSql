@@ -1,4 +1,7 @@
-#pragma once
+#ifndef INDEX_H
+#define INDEX_H
+
+
 
 #include <string>
 
@@ -19,3 +22,5 @@ public:
 	string attriName;
 	int type;
 };
+
+#endif // !INDEX_H

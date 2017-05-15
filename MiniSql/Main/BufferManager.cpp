@@ -188,14 +188,9 @@ Block * BufferManager::getBlock(File * file, Block * block, bool pin)
 	temp->usedSize = fread(temp->address + sizeof(size_t),
 		1, (MAX_BLOCK_SIZE - sizeof(size_t)), fp) + sizeof(size_t);//Just read w/o head
 	*(size_t*)(temp->address) = temp->usedSize;
-
-	if (temp->usedSize == 0)//Read empty file, not allocate it
-	{
-		temp->pre->end = true;
-		temp->pre->next = NULL;
-		initBlock(*temp); //Initial new block
-		return NULL; //Allocate failed
-	}
+	setUsedSize(*temp, temp->usedSize);
+	if (temp->usedSize == 0)//Read empty file. allocate an empty block just for insertion
+		temp->end = true;
 	return temp;
 }
 
@@ -254,7 +249,7 @@ void BufferManager::deleteFile(const string fileName)
 	while (true)
 	{
 		blockList.push_back(btemp);
-		if (btemp->end)
+		if (btemp->end == true)
 			break;
 		btemp = getNextBlock(ftemp, btemp);
 	}
@@ -328,13 +323,18 @@ void BufferManager::initBlock(Block & block)
 	block.pre = block.next = NULL;
 	block.fileName = "";
 }
-//Flush dirty block to the list
+//Flush dirty block to the disk
+//If a deletion cause a string of block is NULL value
+//Just write it to the list and when read, judge if the value
+//is 0, leave it out.
+//That is, the size of file is the max number of records that have
+//been inserted.
 void BufferManager::writeToDisk(string fileName, Block * block)
 {
 	if (block->dirty == false)
 		return;
 	FILE* fp = fopen(fileName.c_str(), "rb+");
-	fseek(fp, block->offset * MAX_BLOCK_SIZE, 0);
+	fseek(fp, block->offset * (MAX_BLOCK_SIZE - sizeof(size_t)), 0);
 	fwrite(block->address + sizeof(size_t), 1, block->usedSize - sizeof(size_t), fp);
 	fclose(fp);
 }

@@ -1,5 +1,7 @@
-#pragma once
-#include <string>
+#ifndef CATALOG_MANAGER_H
+#define CATALOG_MANAGER_H
+
+//#include <string>
 #include <vector>
 #include "Attribute.h"
 #include "BufferManager.h"
@@ -37,7 +39,6 @@ public:
 	bool setIndexOnAttribute(string tableName, string attriName, string indexName);
 	size_t getTypeSize(int type);
 	
-
 	//Operation on indices
 	bool addIndex(string indexName, string tableName, string attriName, int type);
 	bool findIndex(string indexName);
@@ -49,3 +50,4 @@ private:
 	bool getAllIndice(vector<Index>* indexList);
 };
 
+#endif // !CATALOG_MANAGER

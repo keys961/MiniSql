@@ -1,4 +1,6 @@
-#pragma once
+#ifndef BUFFER_MANAGER_H
+#define BUFFER_MANAGER_H
+
 #include "File.h"
 
 static int replacedBlock = -1;
@@ -39,3 +41,4 @@ private:
 	void writeAllToDisk();
 };
 
+#endif // !BUFFER_MANAGER_H

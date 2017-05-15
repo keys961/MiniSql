@@ -99,7 +99,7 @@ size_t CatalogManager::getRecordSize(string tableName)
 		int count = *(addr++);
 		Attribute* attri = (Attribute*)addr;
 		for (int i = 0; i < count; i++, attri++)
-			size += getTypeSize(attri->getType());
+			size += getTypeSize(attri->type);
 		return size;
 	}
 	else
@@ -141,9 +141,9 @@ bool CatalogManager::setIndexOnAttribute(string tableName, string attriName, str
 		Attribute* attr = (Attribute*)addrBegin;
 		for (int i = 0; i < count; i++, attr++)
 		{
-			if (attr->getName() == attriName)
+			if (attr->name == attriName)
 			{
-				attr->setIndexName(indexName);
+				attr->indexName = indexName;
 				bufferManager.setDirty(*btemp, true);
 				return true;
 			}

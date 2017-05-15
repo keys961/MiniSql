@@ -1,4 +1,7 @@
-#pragma once
+#ifndef CONDITION_H
+#define CONDITION_H
+
+
 #include <string>
 
 using namespace std;
@@ -108,3 +111,4 @@ bool Condition::compare(string value)
 	default: return false;//No such comparision
 	}
 }
+#endif // !CONDITION_H
