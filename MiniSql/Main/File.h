@@ -21,8 +21,7 @@ public:
 
 private:
 	char* address; //Content address w/o head, C++ doesn't have byte type
-				   //The first 4 bit is used to store usedSize, actually, 
-				   //there's nothing in first 4 bit, the size is stored in size_t usedSize
+				   //The first 4 bit is used to store usedSize without head
 	Block* pre;
 	Block* next;
 	bool dirty;//need to write back
@@ -36,8 +35,8 @@ public:
 	string fileName;
 	bool pin; //Pin
 	Block* head; //Block head
-	File* pre; //Previous file node
-	File* next; //Next file node
+	//File* pre; //Previous file node
+	//File* next; //Next file node
 };
 
 #endif // !FILE_H

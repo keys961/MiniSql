@@ -11,19 +11,25 @@ void catalogTest();
 
 int main()
 {
+	//Buffer test
 	/*FILE *fp = fopen("TestFile2", "wb+");
 	char data[4096];
-	data[4095] = 0;
+	char another[2048];
+	int* addr = (int*)data;
+	*addr = 4096 - 4;
+	addr = (int*)another;
+	*addr = 2048 - 4;
 	for (int i = 1; i <= 300; i++)
 	{
 		fwrite(data, sizeof(char), 4096, fp);
 		fseek(fp, 4096 * i, 0);
 	}
+	fwrite(another, sizeof(char), 2048, fp);
 	fclose(fp);*/
-	//fp = fopen("TestFile", "rb");
-	//size_t a = fread(data, 1, 5000, fp);
 	//bufferTest();
-	catalogTest();
+
+	//Catalog test
+	//catalogTest();
     return 0;
 }
 
@@ -41,19 +47,36 @@ void bufferTest()
 	} while (next->offset < 300);
 	system("pause");//OK big data
 	//bufferManager->setDirty(*head, true);//OK
-	//bufferManager->setDirty(*next, true);//OK
-	
+	bufferManager->setDirty(*next, true);//OK
+	bufferManager->deleteFile(fileName);
 }
 
 void catalogTest()
 {
 	CatalogManager* catalogManager = new CatalogManager();
-	Attribute attri[20];
+	vector<Attribute> attriList;
+	vector<Attribute> newList;
+	vector<Index> indexList;
 	for (int i = 0; i < 20; i++)
 	{
-		attri[i] = Attribute("name", 10, false);
-		attri[i].printAttribute();
+		attriList.push_back(*(new Attribute("name", 20, false)));
+		attriList[i].printAttribute();
 	}
 	string tableName = "testTable";
-	
+	//catalogManager->addTable(tableName, &attriList, "name", 1);
+	bool isFind;
+	int recordNum = catalogManager->getRecordNum(tableName);
+	int singleSize = catalogManager->getRecordSize(tableName);
+	int pKeyPos = catalogManager->getAttribute(tableName, &newList);
+
+	//catalogManager->addIndex("tname", tableName, "name", 20);
+	catalogManager->dropIndex("tname");
+	bool indexFind = catalogManager->findIndex("tname");
+	catalogManager->getIndex(&indexList, tableName);
+	int indexType = catalogManager->getIndexType("tname");
+
+	catalogManager->dropTable(tableName);
+	isFind = catalogManager->findTable(tableName);
+	delete catalogManager;
+	system("pause");
 }

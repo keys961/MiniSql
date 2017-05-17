@@ -35,8 +35,7 @@ public:
 	bool updateRecordNum(string tableName, int num);
 	size_t getRecordSize(string tableName);
 	//Operation on attributes
-	bool getAttribute(string tableName, vector<Attribute>* attriList);
-	bool setIndexOnAttribute(string tableName, string attriName, string indexName);
+	int getAttribute(string tableName, vector<Attribute>* attriList);
 	size_t getTypeSize(int type);
 	
 	//Operation on indices
@@ -48,6 +47,7 @@ public:
 
 private:
 	bool getAllIndice(vector<Index>* indexList);
+	bool setIndexOnAttribute(string tableName, string attriName, string indexName);
 };
 
 #endif // !CATALOG_MANAGER

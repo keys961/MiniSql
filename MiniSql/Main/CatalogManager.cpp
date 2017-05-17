@@ -12,6 +12,7 @@ CatalogManager::~CatalogManager()
 {
 }
 //Add a new table with attrs to the memory block(add table info TO THE TABLE FILE)
+//Position is 0 means no primary key
 bool CatalogManager::addTable(string tableName, vector<Attribute>* attriList, string pKeyName, int pKeyPos)
 {
 	FILE* fp = fopen(tableName.c_str(), "w+");
@@ -38,6 +39,7 @@ bool CatalogManager::addTable(string tableName, vector<Attribute>* attriList, st
 		bufferManager.setUsedSize(*btemp, bufferManager.getUsedSize(*btemp)
 			+ (*attriList).size() * sizeof(Attribute) + sizeof(int) + 2);
 		bufferManager.setDirty(*btemp, true);//Set dirty
+		return true;
 	}
 	return false;
 }
@@ -53,9 +55,14 @@ bool CatalogManager::findTable(string tableName)
 //Delete the table from the disk & memory block
 bool CatalogManager::dropTable(string tableName)
 {
-	bufferManager.deleteFile(tableName.c_str());//Clear all
-	if (remove((tableName).c_str()))//Clear the disk
+	bufferManager.deleteFile(tableName.c_str());//Clear all buffer
+	int status = 0;
+	//char command[255] = { 0 };
+	//sprintf(command, "del %s", tableName.c_str());
+	status = remove((tableName).c_str());//Clear the disk
+	if(status)
 		return false;
+	//system(command);
 	return true;
 }
 //Get table record number
@@ -64,7 +71,7 @@ int CatalogManager::getRecordNum(string tableName)
 	File* ftemp = bufferManager.getFile(tableName);
 	Block* btemp = bufferManager.getBlockHead(ftemp);
 	if (btemp)
-		return *(int*)bufferManager.getContent(*btemp);
+		return *(int*)bufferManager.getContent(*btemp);//*(Addr of record number) 
 	return -1;
 }
 //Update table record number with num
@@ -108,23 +115,25 @@ size_t CatalogManager::getRecordSize(string tableName)
 		return 0;
 	}
 }
-//Get all attributes of table in attriList
-bool CatalogManager::getAttribute(string tableName, vector<Attribute>* attriList)
+//Get all attributes of table in attriList, return pKey position
+//-1 failed; 0 no pKey; other success
+int CatalogManager::getAttribute(string tableName, vector<Attribute>* attriList)
 {
 	File* ftemp = bufferManager.getFile(tableName.c_str());
 	Block* btemp = bufferManager.getBlockHead(ftemp);
+	int pos = -1;
 	if (btemp)
 	{
 		char* beginAddr = bufferManager.getContent(*btemp);
-		beginAddr += 1 + sizeof(int);
+		beginAddr += sizeof(int);
+		pos = *(beginAddr++);
 		int attriSize = *beginAddr;
 		beginAddr++;
 		Attribute* attri = (Attribute*)beginAddr;
 		for (int i = 0; i < attriSize; i++, attri++)
-			attriList->push_back(*attri);
-		return true;
+			attriList->push_back(*attri);		
 	}
-	return false;
+	return pos;
 }
 //Set attribute in table as index with indexName
 //If revoke, set indexName as NULL or ""
@@ -171,7 +180,7 @@ bool CatalogManager::addIndex(string indexName, string tableName, string attriNa
 	{
 		if (!btemp)
 			return false;
-		if (bufferManager.getUsedSize(*btemp) <= bufferManager.getBlockSize() - sizeof(Index))
+		if (bufferManager.getUsedSize(*btemp) <= MAX_BLOCK_SIZE - sizeof(size_t) - sizeof(Index))//Can get space
 		{
 			char* addrBegin = bufferManager.getContent(*btemp) + bufferManager.getUsedSize(*btemp);
 			memcpy(addrBegin, &index, sizeof(Index));
@@ -180,7 +189,7 @@ bool CatalogManager::addIndex(string indexName, string tableName, string attriNa
 			return this->setIndexOnAttribute(tableName, attriName, indexName);
 		}
 		else
-			btemp = bufferManager.getNextBlock(ftemp, btemp);
+			btemp = bufferManager.getNextBlock(ftemp, btemp);//Alloc next block
 	}
 	return false;
 }
@@ -189,18 +198,20 @@ bool CatalogManager::findIndex(string indexName)
 {
 	File *ftemp = bufferManager.getFile("IndicesInfo");
 	Block* btemp = bufferManager.getBlockHead(ftemp);
-	if (btemp)
+	while(btemp)
 	{
 		char* addrBegin = bufferManager.getContent(*btemp);
 		Index* index = (Index*)addrBegin;
-		int count = (bufferManager.getUsedSize(*btemp)-sizeof(size_t))
-			/ sizeof(Index);
+		int count = bufferManager.getUsedSize(*btemp) / sizeof(Index);
 		for (int i = 0; i < count; i++, index++)
 		{
 			if (index->indexName == indexName)
 				return true;
 		}
-		return false;
+		//return false;
+		btemp = bufferManager.getNextBlock(ftemp, btemp);
+		if (btemp->end)//New next block with no content
+			break;
 	}
 	return false;
 }
@@ -212,17 +223,18 @@ bool CatalogManager::getIndex(vector<Index>* indexList, string tableName)
 	File *ftemp = bufferManager.getFile("IndicesInfo");
 	Block* btemp = bufferManager.getBlockHead(ftemp);
 	Index* index = NULL;
-	if (btemp)
+	while(btemp)
 	{
 		index = (Index*)bufferManager.getContent(*btemp);
-		int size = (bufferManager.getUsedSize(*btemp) - sizeof(size_t))
-			/ sizeof(Index);
+		int size = bufferManager.getUsedSize(*btemp) / sizeof(Index);
 		for (int i = 0; i < size; i++, index++)
 		{
 			if (index->tableName == tableName)
-				indexList->push_back(*index);
+				indexList->push_back(*index);//Single block
 		}
-		return true;
+		btemp = bufferManager.getNextBlock(ftemp, btemp);
+		if (btemp->end)//New next block with no content
+			break;
 	}
 	return false;
 }
@@ -232,14 +244,16 @@ int CatalogManager::getIndexType(string indexName)
 	File *ftemp = bufferManager.getFile("IndicesInfo");
 	Block* btemp = bufferManager.getBlockHead(ftemp);
 	Index* index = NULL;
-	if (btemp)
+	while (btemp)
 	{
 		index = (Index*)bufferManager.getContent(*btemp);
-		int size = (bufferManager.getUsedSize(*btemp) - sizeof(size_t)) 
-			/ sizeof(Index);
+		int size = (bufferManager.getUsedSize(*btemp)) / sizeof(Index);
 		for (int i = 0; i < size; i++, index++)
 			if (index->indexName == indexName)
 				return index->type;
+		btemp = bufferManager.getNextBlock(ftemp, btemp);
+		if (btemp->end)
+			break;
 	}
 	return -2;//Not found
 }
@@ -248,22 +262,28 @@ bool CatalogManager::dropIndex(string indexName)
 {
 	File *ftemp = bufferManager.getFile("IndicesInfo");
 	Block* btemp = bufferManager.getBlockHead(ftemp);
-	if (btemp)
+	while (btemp)
 	{
 		char* addr = bufferManager.getContent(*btemp);
 		Index* index = (Index*)addr;
-		int count = (bufferManager.getUsedSize(*btemp) - sizeof(size_t))
+		int count = (bufferManager.getUsedSize(*btemp))
 			/ sizeof(Index);
 		int i = 0;
 		for (; i < count; i++, index++)
+		{
 			if (index->indexName == indexName)
-				break;
-		this->setIndexOnAttribute(index->tableName, index->attriName, "");//Revoke
-		for (; i < count - 1; i++)
-			*index = *(++index);//Move forward
-		bufferManager.setUsedSize(*btemp, bufferManager.getUsedSize(*btemp) - sizeof(Index));
-		bufferManager.setDirty(*btemp, true);
-		return true;
+			{
+				this->setIndexOnAttribute(index->tableName, index->attriName, "");//Revoke
+				for (; i < count - 1; i++)
+					*index = *(++index);//Move forward
+				bufferManager.setUsedSize(*btemp, bufferManager.getUsedSize(*btemp) - sizeof(Index));
+				bufferManager.setDirty(*btemp, true);
+				return true;
+			}
+		}
+		btemp = bufferManager.getNextBlock(ftemp, btemp);
+		if (btemp->end)
+			break;
 	}
 	return false;
 }
@@ -273,14 +293,15 @@ bool CatalogManager::getAllIndice(vector<Index>* indexList)
 	File *ftemp = bufferManager.getFile("IndicesInfo");
 	Block* btemp = bufferManager.getBlockHead(ftemp);
 	Index* index = NULL;
-	if (btemp)
+	while (btemp)
 	{
 		index = (Index*)bufferManager.getContent(*btemp);
-		int size = (bufferManager.getUsedSize(*btemp) - sizeof(size_t))
-			/ sizeof(Index);
+		int size = (bufferManager.getUsedSize(*btemp)) / sizeof(Index);
 		for (int i = 0; i < size; i++, index++)
 			indexList->push_back(*index);
-		return true;
+		btemp = bufferManager.getNextBlock(ftemp, btemp);
+		if (btemp->end)//New next block with no content
+			break;
 	}
 	return false;
 }
