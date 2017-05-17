@@ -6,8 +6,14 @@
 #include <string>
 using namespace std;
 
+class A
+{
+	char* b;
+};
+
 void bufferTest();
 void catalogTest();
+
 
 int main()
 {
@@ -30,6 +36,7 @@ int main()
 
 	//Catalog test
 	//catalogTest();
+
     return 0;
 }
 
@@ -62,21 +69,25 @@ void catalogTest()
 		attriList.push_back(*(new Attribute("name", 20, false)));
 		attriList[i].printAttribute();
 	}
+	attriList.push_back(*(new Attribute("nasdsadme", 20, false)));
+	attriList.push_back(*(new Attribute("nasdsdsdsdadme", 20, false)));
 	string tableName = "testTable";
-	//catalogManager->addTable(tableName, &attriList, "name", 1);
+	catalogManager->addTable(tableName, &attriList, "name", 1);
 	bool isFind;
 	int recordNum = catalogManager->getRecordNum(tableName);
 	int singleSize = catalogManager->getRecordSize(tableName);
 	int pKeyPos = catalogManager->getAttribute(tableName, &newList);
 
 	//catalogManager->addIndex("tname", tableName, "name", 20);
-	catalogManager->dropIndex("tname");
+	//catalogManager->addIndex("tname2", tableName, "nasdsadme", 20);
+	//catalogManager->dropIndex("tname");
 	bool indexFind = catalogManager->findIndex("tname");
 	catalogManager->getIndex(&indexList, tableName);
 	int indexType = catalogManager->getIndexType("tname");
+	indexType = catalogManager->getIndexType("tname2");
 
-	catalogManager->dropTable(tableName);
-	isFind = catalogManager->findTable(tableName);
+	//catalogManager->dropTable(tableName);
+	//isFind = catalogManager->findTable(tableName);
 	delete catalogManager;
 	system("pause");
 }

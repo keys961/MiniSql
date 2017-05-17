@@ -24,8 +24,12 @@ public:
 	const static int TABLE_FILE = 1;
 	const static int INDEX_FILE = 2;*/
 
-	BufferManager bufferManager;
+	BufferManager* bufferManager;
 	CatalogManager();
+	CatalogManager(BufferManager* bufferManager)
+	{
+		this->bufferManager = bufferManager;
+	}
 	~CatalogManager();
 	//Operation on table info
 	bool addTable(string tableName, vector<Attribute>* attriList, string pKeyName, int pKeyPos);
