@@ -1,14 +1,14 @@
 #include "stdafx.h"
 #include "RecordManager.h"
 
-
 RecordManager::RecordManager()
 {
+	this->bufferManager = new BufferManager();
 }
-
 
 RecordManager::~RecordManager()
 {
+	delete bufferManager;
 }
 //Create empty table file
 bool RecordManager::createTable(string tableName)
@@ -24,7 +24,7 @@ bool RecordManager::createTable(string tableName)
 bool RecordManager::dropTable(string tableName)
 {
 	string fileName = (tableName);
-	bufferManager.deleteFile(fileName);//Clear slots
+	bufferManager->deleteFile(fileName);//Clear slots
 	if (remove(fileName.c_str())) //Remove file from disk
 		return false;
 	return true;
@@ -46,7 +46,7 @@ bool RecordManager::createIndex(string indexName)
 bool RecordManager::dropIndex(string indexName)
 {
 	string fileName = (indexName);
-	bufferManager.deleteFile(fileName);//Clear slots
+	bufferManager->deleteFile(fileName);//Clear slots
 	if (remove(fileName.c_str())) //Remove file from disk
 		return false;
 	return true;
@@ -56,22 +56,22 @@ bool RecordManager::dropIndex(string indexName)
 //size is the single record length
 int RecordManager::insertRecord(string tableName, char* recordContent, int size)
 {
-	File* ftemp = bufferManager.getFile(tableName);
-	Block* btemp = bufferManager.getBlockHead(ftemp);
+	File* ftemp = bufferManager->getFile(tableName);
+	Block* btemp = bufferManager->getBlockHead(ftemp);
 	if (btemp == NULL)
 		return -1;
 	while (true)
 	{
-		if (bufferManager.getUsedSize(*btemp) <= MAX_BLOCK_SIZE - sizeof(size_t) - size)
+		if (bufferManager->getUsedSize(*btemp) <= MAX_BLOCK_SIZE - sizeof(size_t) - size)
 		{
-			char* beginAddr = bufferManager.getContent(*btemp)
-				+ bufferManager.getUsedSize(*btemp);
+			char* beginAddr = bufferManager->getContent(*btemp)
+				+ bufferManager->getUsedSize(*btemp);
 			memcpy(beginAddr, recordContent, size); //Insert
-			bufferManager.setDirty(*btemp, true);
-			bufferManager.setUsedSize(*btemp, bufferManager.getUsedSize(*btemp) + size);
+			bufferManager->setDirty(*btemp, true);
+			bufferManager->setUsedSize(*btemp, bufferManager->getUsedSize(*btemp) + size);
 			return btemp->offset;
 		}
-		btemp = bufferManager.getNextBlock(ftemp, btemp);
+		btemp = bufferManager->getNextBlock(ftemp, btemp);
 	}
 	return -1;
 }
@@ -79,8 +79,8 @@ int RecordManager::insertRecord(string tableName, char* recordContent, int size)
 //return the number of the records
 int RecordManager::findRecord(string tableName, vector<Attribute>* attriList, vector<Condition> *conditionList)
 {
-	File* ftemp = bufferManager.getFile(tableName);
-	Block* btemp = bufferManager.getBlockHead(ftemp);
+	File* ftemp = bufferManager->getFile(tableName);
+	Block* btemp = bufferManager->getBlockHead(ftemp);
 	int count = 0;
 	if (btemp == NULL)
 		return -1; //ERROR
@@ -89,15 +89,15 @@ int RecordManager::findRecord(string tableName, vector<Attribute>* attriList, ve
 		count += findRecordInBlock(tableName, attriList, conditionList, btemp);
 		if (btemp->end)
 			return count;
-		btemp = bufferManager.getNextBlock(ftemp, btemp);
+		btemp = bufferManager->getNextBlock(ftemp, btemp);
 	}
 	return 0;
 }
 //Show all record in the console that fits the conditions
 void RecordManager::showRecord(string tableName, vector<Attribute>* attriList, vector<Condition>* conditionList)
 {
-	File* ftemp = bufferManager.getFile(tableName);
-	Block* btemp = bufferManager.getBlockHead(ftemp);
+	File* ftemp = bufferManager->getFile(tableName);
+	Block* btemp = bufferManager->getBlockHead(ftemp);
 	if (btemp == NULL)
 		return;
 	while (true)
@@ -105,14 +105,14 @@ void RecordManager::showRecord(string tableName, vector<Attribute>* attriList, v
 		showRecordInBlock(tableName, attriList, conditionList, btemp);
 		if (btemp->end)
 			return;
-		btemp = bufferManager.getNextBlock(ftemp, btemp);
+		btemp = bufferManager->getNextBlock(ftemp, btemp);
 	}
 }
 //Delete all record that fits the condition
 bool RecordManager::deleteRecord(string tableName, vector<Attribute>* attriList, vector<Condition>* conditionList)
 {
-	File* ftemp = bufferManager.getFile(tableName);
-	Block* btemp = bufferManager.getBlockHead(ftemp);
+	File* ftemp = bufferManager->getFile(tableName);
+	Block* btemp = bufferManager->getBlockHead(ftemp);
 	if (btemp == NULL)
 		return false;
 	while (true)
@@ -120,7 +120,7 @@ bool RecordManager::deleteRecord(string tableName, vector<Attribute>* attriList,
 		bool status = deleteRecordInBlock(tableName, attriList, conditionList, btemp);
 		if (btemp->end)
 			return status;
-		btemp = bufferManager.getNextBlock(ftemp, btemp);
+		btemp = bufferManager->getNextBlock(ftemp, btemp);
 	}
 	return false;
 }
@@ -142,14 +142,14 @@ int RecordManager::findRecordInBlock(string tableName, vector<Attribute>* attriL
 		return -1;
 	int count = 0;
 	int recordSize = 0;
-	char* beginAddr = bufferManager.getContent(*block);
-	char* tempAddr = bufferManager.getContent(*block);
+	char* beginAddr = bufferManager->getContent(*block);
+	char* tempAddr = bufferManager->getContent(*block);
 	if (block->offset == 0) //If head
 		tempAddr += (*attriList).size() * sizeof(Attribute) + sizeof(int) + 2;
 	for (int i = 0; i < attriList->size(); i++)
 		recordSize += getTypeSize((*attriList)[i].type);
 
-	while (tempAddr - beginAddr < bufferManager.getUsedSize(*block))
+	while (tempAddr - beginAddr < bufferManager->getUsedSize(*block))
 	{
 		if (fitCondition(tempAddr, recordSize, attriList, conditionList))
 			count++;
@@ -162,14 +162,14 @@ void RecordManager::showRecordInBlock(string tableName, vector<Attribute>* attri
 {
 	if (block == NULL)
 		return;
-	char* addr = bufferManager.getContent(*block);
-	char* temp = bufferManager.getContent(*block);
+	char* addr = bufferManager->getContent(*block);
+	char* temp = bufferManager->getContent(*block);
 	int recordSize = 0;
 	for (int i = 0; i < attriList->size(); i++)
 		recordSize += getTypeSize((*attriList)[i].type);
 	if(block->offset == 0)//Head
 		temp += (*attriList).size() * sizeof(Attribute) + sizeof(int) + 2;
-	while (temp - addr < bufferManager.getUsedSize(*block))
+	while (temp - addr < bufferManager->getUsedSize(*block))
 	{
 		if (fitCondition(temp, recordSize, attriList, conditionList))
 			showSingleRecord(temp, recordSize, attriList);
@@ -201,23 +201,23 @@ bool RecordManager::deleteRecordInBlock(string tableName, vector<Attribute>* att
 {
 	if (block == NULL)
 		return false;
-	char* addr = bufferManager.getContent(*block);
-	char* temp = bufferManager.getContent(*block);
+	char* addr = bufferManager->getContent(*block);
+	char* temp = bufferManager->getContent(*block);
 	int recordSize = 0;
 	for (int i = 0; i < attriList->size(); i++)
 		recordSize += getTypeSize((*attriList)[i].type);
 	if (block->offset == 0)//Head
 		temp += (*attriList).size() * sizeof(Attribute) + sizeof(int) + 2;
-	while (temp - addr < bufferManager.getUsedSize(*block))
+	while (temp - addr < bufferManager->getUsedSize(*block))
 	{
 		if (fitCondition(temp, recordSize, attriList, conditionList))
 		{
 			int i = 0;
-			for (i = 0; i + recordSize + temp - addr < bufferManager.getUsedSize(*block); i++)
+			for (i = 0; i + recordSize + temp - addr < bufferManager->getUsedSize(*block); i++)
 				*temp = *(temp + i); //Move downward
 			memset(temp + i, 0, recordSize);
-			bufferManager.setDirty(*block, true);
-			bufferManager.setUsedSize(*block, bufferManager.getUsedSize(*block) - recordSize);
+			bufferManager->setDirty(*block, true);
+			bufferManager->setUsedSize(*block, bufferManager->getUsedSize(*block) - recordSize);
 		}
 		else
 			temp += recordSize;
@@ -244,16 +244,16 @@ bool RecordManager::fitCondition(char * recordContent, int size, vector<Attribut
 		for (int j = 0; j < conditionList->size(); j++)
 		{
 			if (conditionList->at(j).getAttribute() == attriName)
-				if (!compare(element, type, &(*conditionList)[j]))
+				if (!compareElement(element, type, &(*conditionList)[j]))
 					return false;
 		}
-		addr += typeSize;
+		addr += typeSize;//Next element
 	}
 	return true;
 }
 //Compare the element meets the condition or not, element is the right value
 //left value & compare operation is stored in condition objects
-bool RecordManager::compare(char * element, int type, Condition * condition)
+bool RecordManager::compareElement(char * element, int type, Condition * condition)
 {
 	switch (type)
 	{

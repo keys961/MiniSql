@@ -6,10 +6,12 @@
 
 CatalogManager::CatalogManager()
 {
+	bufferManager = new BufferManager();
 }
 
 CatalogManager::~CatalogManager()
 {
+	delete bufferManager;
 }
 //Add a new table with attrs to the memory block(add table info TO THE TABLE FILE)
 //Position is 0 means no primary key

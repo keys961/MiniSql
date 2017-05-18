@@ -3,17 +3,13 @@
 
 #include "stdafx.h"
 #include "CatalogManager.h"
-#include <string>
+#include "RecordManager.h"
+//#include <string>
 using namespace std;
-
-class A
-{
-	char* b;
-};
 
 void bufferTest();
 void catalogTest();
-
+void recordTest();
 
 int main()
 {
@@ -90,4 +86,11 @@ void catalogTest()
 	//isFind = catalogManager->findTable(tableName);
 	delete catalogManager;
 	system("pause");
+}
+
+void recordTest()
+{
+	BufferManager* buffer = new BufferManager();
+	RecordManager* record = new RecordManager();
+
 }
