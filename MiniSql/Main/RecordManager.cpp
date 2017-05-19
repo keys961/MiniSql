@@ -54,6 +54,8 @@ bool RecordManager::dropIndex(string indexName)
 //Insert a record, return the offset number
 //Record is length-fixed
 //size is the single record length
+//NOTE: We may need indexManager to judge the uniqueness, 
+//thus the judgement of uniqueness may be done in API level
 int RecordManager::insertRecord(string tableName, char* recordContent, int size)
 {
 	File* ftemp = bufferManager->getFile(tableName);
@@ -94,32 +96,34 @@ int RecordManager::findRecord(string tableName, vector<Attribute>* attriList, ve
 	return 0;
 }
 //Show all record in the console that fits the conditions
-void RecordManager::showRecord(string tableName, vector<Attribute>* attriList, vector<Condition>* conditionList)
+int RecordManager::showRecord(string tableName, vector<Attribute>* attriList, vector<Condition>* conditionList)
 {
 	File* ftemp = bufferManager->getFile(tableName);
 	Block* btemp = bufferManager->getBlockHead(ftemp);
+	int count = 0;
 	if (btemp == NULL)
-		return;
+		return count;
 	while (true)
 	{
-		showRecordInBlock(tableName, attriList, conditionList, btemp);
+		count += showRecordInBlock(tableName, attriList, conditionList, btemp);
 		if (btemp->end)
-			return;
+			return count;
 		btemp = bufferManager->getNextBlock(ftemp, btemp);
 	}
 }
 //Delete all record that fits the condition
-bool RecordManager::deleteRecord(string tableName, vector<Attribute>* attriList, vector<Condition>* conditionList)
+int RecordManager::deleteRecord(string tableName, vector<Attribute>* attriList, vector<Condition>* conditionList)
 {
 	File* ftemp = bufferManager->getFile(tableName);
 	Block* btemp = bufferManager->getBlockHead(ftemp);
+	int count = 0;
 	if (btemp == NULL)
-		return false;
+		return count;
 	while (true)
 	{
-		bool status = deleteRecordInBlock(tableName, attriList, conditionList, btemp);
+		count += deleteRecordInBlock(tableName, attriList, conditionList, btemp);
 		if (btemp->end)
-			return status;
+			return count;
 		btemp = bufferManager->getNextBlock(ftemp, btemp);
 	}
 	return false;
@@ -158,10 +162,11 @@ int RecordManager::findRecordInBlock(string tableName, vector<Attribute>* attriL
 	return count;
 
 }
-void RecordManager::showRecordInBlock(string tableName, vector<Attribute>* attriList, vector<Condition>* conditionList, Block * block)
+int RecordManager::showRecordInBlock(string tableName, vector<Attribute>* attriList, vector<Condition>* conditionList, Block * block)
 {
+	int count = 0;
 	if (block == NULL)
-		return;
+		return count;
 	char* addr = bufferManager->getContent(*block);
 	char* temp = bufferManager->getContent(*block);
 	int recordSize = 0;
@@ -172,9 +177,13 @@ void RecordManager::showRecordInBlock(string tableName, vector<Attribute>* attri
 	while (temp - addr < bufferManager->getUsedSize(*block))
 	{
 		if (fitCondition(temp, recordSize, attriList, conditionList))
+		{
 			showSingleRecord(temp, recordSize, attriList);
+			count++;
+		}
 		temp += recordSize;
 	}
+	return count;
 }
 void RecordManager::showSingleRecord(char * content, int size, vector<Attribute>* attriList)
 {
@@ -197,10 +206,11 @@ void RecordManager::showSingleRecord(char * content, int size, vector<Attribute>
 	}
 	printf("\n");
 }
-bool RecordManager::deleteRecordInBlock(string tableName, vector<Attribute>* attriList, vector<Condition>* conditionList, Block * block)
+int RecordManager::deleteRecordInBlock(string tableName, vector<Attribute>* attriList, vector<Condition>* conditionList, Block * block)
 {
+	int count = 0;
 	if (block == NULL)
-		return false;
+		return count;
 	char* addr = bufferManager->getContent(*block);
 	char* temp = bufferManager->getContent(*block);
 	int recordSize = 0;
@@ -212,17 +222,17 @@ bool RecordManager::deleteRecordInBlock(string tableName, vector<Attribute>* att
 	{
 		if (fitCondition(temp, recordSize, attriList, conditionList))
 		{
-			int i = 0;
-			for (i = 0; i + recordSize + temp - addr < bufferManager->getUsedSize(*block); i++)
-				*temp = *(temp + i); //Move downward
-			memset(temp + i, 0, recordSize);
+			char* lastRecord = addr + bufferManager->getUsedSize(*block) - recordSize;
+			memcpy(temp, lastRecord, recordSize);
+			memset(lastRecord, 0, recordSize);
 			bufferManager->setDirty(*block, true);
 			bufferManager->setUsedSize(*block, bufferManager->getUsedSize(*block) - recordSize);
+			count++;
 		}
 		else
 			temp += recordSize;
 	}
-	return true;
+	return count;
 }
 //Test an record is met conditions or not
 bool RecordManager::fitCondition(char * recordContent, int size, vector<Attribute>* attriList, vector<Condition>* conditionList)

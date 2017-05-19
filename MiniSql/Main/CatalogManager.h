@@ -22,9 +22,7 @@ public:
 
 	/*const static int UNKNOWN_FILE = -1;
 	const static int TABLE_FILE = 1;
-	const static int INDEX_FILE = 2;*/
-
-	BufferManager* bufferManager;
+	const static int INDEX_FILE = 2;*/	
 	CatalogManager();
 	CatalogManager(BufferManager* bufferManager)
 	{
@@ -50,6 +48,7 @@ public:
 	bool dropIndex(string indexName);
 
 private:
+	BufferManager* bufferManager;
 	bool getAllIndice(vector<Index>* indexList);
 	bool setIndexOnAttribute(string tableName, string attriName, string indexName);
 };

@@ -33,6 +33,7 @@ int main()
 	//Catalog test
 	//catalogTest();
 
+	recordTest();
     return 0;
 }
 
@@ -56,7 +57,7 @@ void bufferTest()
 
 void catalogTest()
 {
-	CatalogManager* catalogManager = new CatalogManager();
+	CatalogManager* catalogManager = new CatalogManager(new BufferManager());
 	vector<Attribute> attriList;
 	vector<Attribute> newList;
 	vector<Index> indexList;
@@ -91,6 +92,32 @@ void catalogTest()
 void recordTest()
 {
 	BufferManager* buffer = new BufferManager();
-	RecordManager* record = new RecordManager();
+	RecordManager* record = new RecordManager(buffer);
+	CatalogManager* catalog = new CatalogManager(buffer);
 
+	vector<Attribute> attriList;
+	attriList.push_back(*(new Attribute("id", 0, false)));
+	attriList.push_back(*(new Attribute("name", 10, false)));
+
+	vector<Condition> conditionList;
+	conditionList.push_back(*(new Condition("id", "1", Condition::EQUAL)));
+	conditionList.push_back(*(new Condition("name", "Jack", Condition::EQUAL)));
+	string tableName = "student";
+
+	catalog->addTable(tableName, &attriList, "id", 1);
+
+	char* recordContent = new char[14];
+	char* temp;
+	//First Record
+	memset(recordContent, 0, 14);
+	temp = recordContent;
+	*(int*)temp = 1;
+	temp += sizeof(int);
+	strcpy(temp, "Jack");
+	for(int i = 0; i < 88000; i++)
+		record->insertRecord(tableName, recordContent, 14);
+	record->deleteRecord(tableName, &attriList, &conditionList);
+	int n = record->findRecord(tableName, &attriList, &conditionList);
+	record->showRecord(tableName, &attriList, &conditionList);
+	printf("%d record found\n", n);
 }

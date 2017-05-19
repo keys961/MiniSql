@@ -30,15 +30,16 @@ public:
 	//Record operation
 	int insertRecord(string tableName, char* recordContent, int size); //Return the block offset
 	int findRecord(string tableName, vector<Attribute>* attriList, vector<Condition> *conditionList);
-	void showRecord(string tableName, vector<Attribute>* attriList, vector<Condition> *conditionList);
-	bool deleteRecord(string tableName, vector<Attribute>* attriList, vector<Condition> *conditionList);
+	int showRecord(string tableName, vector<Attribute>* attriList, vector<Condition> *conditionList);
+	int deleteRecord(string tableName, vector<Attribute>* attriList, vector<Condition> *conditionList);
+	//Record operation by searching by INDEX
+	int findRecordInBlock(string tableName, vector<Attribute>* attriList, vector<Condition>* conditionList, Block * block);
+	int showRecordInBlock(string tableName, vector<Attribute>* attriList, vector<Condition> *conditionList, Block* block);
+	int deleteRecordInBlock(string tableName, vector<Attribute>* attriList, vector<Condition> *conditionList, Block* block);
 private:
 	BufferManager* bufferManager;
-	size_t getTypeSize(int type);
-	int findRecordInBlock(string tableName, vector<Attribute>* attriList, vector<Condition>* conditionList, Block * block);
-	void showRecordInBlock(string tableName, vector<Attribute>* attriList, vector<Condition> *conditionList, Block* block);
+	size_t getTypeSize(int type);	
 	void showSingleRecord(char* content, int size, vector<Attribute>* attriList);
-	bool deleteRecordInBlock(string tableName, vector<Attribute>* attriList, vector<Condition> *conditionList, Block* block);
 	bool fitCondition(char* recordContent, int size, vector<Attribute>* attriList, vector<Condition>* conditionList = NULL);
 	bool compareElement(char* element, int size, Condition* condition);
 };
