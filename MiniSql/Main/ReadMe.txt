@@ -43,7 +43,8 @@ Condition.h
 File.h
 	定义File类，表示文件，内有Block Head指针。
 	定义Block类，表示块，相同文件的块会以双向链表串起来，
-	而块中的offset值表示该块在当前文件的偏移量，如offset = 1，则该块数据是从文件的第4097KB开始读的
+	而块中的offset值表示该块在当前文件的偏移量，
+	如offset = 1，则该块数据是从文件的第BLOCKSIZE*offset+1位置开始读的.
 	一个文件的文件头的块用于记录Table的元数据，包含：
 		1. 使用大小
 		2. Record数目
