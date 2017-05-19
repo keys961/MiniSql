@@ -10,7 +10,7 @@ class Condition
 {
 private:
 	string attriName;
-	string comparedValue;//Value that's being compared
+	string comparedValue;//Value that's being compared, right value
 	int operateType;
 
 public:	
@@ -33,12 +33,12 @@ public:
 	{
 		switch (this->operateType)
 		{
-		case INEQUAL: return comparedValue != value;
-		case LESS: return comparedValue < value;
-		case NO_MORE: return comparedValue <= value;
-		case EQUAL: return comparedValue == value;
-		case NO_LESS: return comparedValue >= value;
-		case MORE: return comparedValue > value;
+		case INEQUAL: return value != comparedValue;
+		case LESS: return value < comparedValue;
+		case NO_MORE: return value <= comparedValue;
+		case EQUAL: return value == comparedValue;
+		case NO_LESS: return value >= comparedValue;
+		case MORE: return value > comparedValue;
 		default: return false;//No such comparision
 		}
 	}
@@ -48,12 +48,12 @@ public:
 		int cmpValue = atoi(comparedValue.c_str());
 		switch (this->operateType)
 		{
-		case INEQUAL: return cmpValue != value;
-		case LESS: return cmpValue < value;
-		case NO_MORE: return cmpValue <= value;
-		case EQUAL: return cmpValue == value;
-		case NO_LESS: return cmpValue >= value;
-		case MORE: return cmpValue > value;
+		case INEQUAL: return value != cmpValue;
+		case LESS: return value < cmpValue;
+		case NO_MORE: return value <= cmpValue;
+		case EQUAL: return value == cmpValue;
+		case NO_LESS: return value >= cmpValue;
+		case MORE: return value > cmpValue;
 		default: return false;//No such comparision
 		}
 	}
@@ -63,12 +63,12 @@ public:
 		float cmpValue = (float)atof(comparedValue.c_str());
 		switch (this->operateType)
 		{
-		case INEQUAL: return cmpValue != value;
-		case LESS: return cmpValue < value;
-		case NO_MORE: return cmpValue <= value;
-		case EQUAL: return cmpValue == value;
-		case NO_LESS: return cmpValue >= value;
-		case MORE: return cmpValue > value;
+		case INEQUAL: return value != cmpValue;
+		case LESS: return value < cmpValue;
+		case NO_MORE: return value <= cmpValue;
+		case EQUAL: return value == cmpValue;
+		case NO_LESS: return value >= cmpValue;
+		case MORE: return value > cmpValue;
 		default: return false;//No such comparision
 		}
 	}
