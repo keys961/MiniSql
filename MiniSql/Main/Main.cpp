@@ -7,12 +7,21 @@
 //#include <string>
 using namespace std;
 
+FILE *input;
+FILE *output;
+
 void bufferTest();
 void catalogTest();
 void recordTest();
 
-int main()
+int main(int argc, char* argv[])
 {
+	/*
+	char* testFile = argv[1];
+	char* outputFile = argv[2];
+	input = fopen(testFile, "w+");
+	output = fopen(outputFile, "w+");
+	*/
 	//Buffer test
 	/*FILE *fp = fopen("TestFile2", "wb+");
 	char data[4096];
