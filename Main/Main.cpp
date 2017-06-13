@@ -47,7 +47,6 @@ void bufferTest()
 	do
 	{
 		 next = bufferManager->getNextBlock(file, next);//fill next block OK
-
 	} while (next->offset < 300);
 	system("pause");//OK big data
 	//bufferManager->setDirty(*head, true);//OK
