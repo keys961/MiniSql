@@ -4,6 +4,7 @@
 #include "stdafx.h"
 #include "CatalogManager.h"
 #include "RecordManager.h"
+#include "IndexManager.h"
 //#include <string>
 using namespace std;
 
@@ -33,7 +34,9 @@ int main()
 	//Catalog test
 	//catalogTest();
 
-	recordTest();
+	//recordTest();
+	IndexManager m;
+	
     return 0;
 }
 

@@ -140,6 +140,7 @@
   <ItemGroup>
     <ClInclude Include="API.h" />
     <ClInclude Include="Attribute.h" />
+    <ClInclude Include="BPTree.h" />
     <ClInclude Include="BufferManager.h" />
     <ClInclude Include="CatalogManager.h" />
     <ClInclude Include="Condition.h" />

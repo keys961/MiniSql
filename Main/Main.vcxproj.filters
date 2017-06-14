@@ -54,6 +54,9 @@
     <ClInclude Include="Interpreter.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="BPTree.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
