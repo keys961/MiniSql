@@ -130,10 +130,6 @@ Block * BufferManager::getBlock(File * file, Block * block, bool pin)
 				i = 0;
 			if (!blockPool[i].pin)
 			{
-				if (blockPool[i].lru == true)//Not lru, not replace it
-					blockPool[i].lru = false;
-				else
-				{
 					temp = &blockPool[i];
 					if (temp->pre)//link pre
 						temp->pre->next = temp->next;
@@ -145,7 +141,6 @@ Block * BufferManager::getBlock(File * file, Block * block, bool pin)
 					writeToDisk(temp->fileName, temp);//Right back to disk
 					initBlock(*temp);
 					break;
-				}
 			}
 		}
 	}
@@ -177,11 +172,11 @@ Block * BufferManager::getBlock(File * file, Block * block, bool pin)
 	temp->pin = pin;
 	temp->fileName = file->fileName;
 	FILE* fp = fopen(file->fileName.c_str(), "ab+");
-	fseek(fp, temp->offset * (MAX_BLOCK_SIZE), 0);//If rest space cannot hold a record, set 0 in the file
+	std::fseek(fp, temp->offset * (MAX_BLOCK_SIZE), 0);//If rest space cannot hold a record, set 0 in the file
 	if (fread(temp->address, 1, (MAX_BLOCK_SIZE), fp) == 0)//Read with head
 		temp->end = true;//If empty, set it as an end
 	temp->usedSize = *(size_t*)(temp->address) + sizeof(size_t);//Get size from block
-	fclose(fp);
+	std::fclose(fp);
 	return temp;
 }
 
@@ -283,8 +278,6 @@ void BufferManager::setPin(File & file, bool pin)
 void BufferManager::setPin(Block & block, bool pin)//If pin that means not lru
 {
 	block.pin = pin;
-	if (!pin)
-		block.lru = true;
 }
 //Set used size of block without header
 void BufferManager::setUsedSize(Block & block, size_t usage)
@@ -319,7 +312,7 @@ void BufferManager::initBlock(Block & block)
 	size_t initUsage = 0;
 	memcpy(block.address, (char*)&initUsage, sizeof(size_t));//Set head, the value doesn't contain header
 	block.usedSize = sizeof(size_t);//usedSized: with header
-	block.dirty = block.pin = block.lru = block.end = false;
+	block.dirty = block.pin = block.end = false;
 	block.offset = -1;//No use marked
 	block.pre = block.next = NULL;
 	block.fileName = "";
@@ -335,9 +328,9 @@ void BufferManager::writeToDisk(string fileName, Block * block)
 	if (block->dirty == false)
 		return;
 	FILE* fp = fopen(fileName.c_str(), "rb+");
-	fseek(fp, block->offset * (MAX_BLOCK_SIZE), 0);
+	std::fseek(fp, block->offset * (MAX_BLOCK_SIZE), 0);
 	fwrite(block->address, 1, block->usedSize, fp);//Write with header
-	fclose(fp);
+	std::fclose(fp);
 }
 //Flush all to disk
 void BufferManager::writeAllToDisk()

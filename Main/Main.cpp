@@ -29,15 +29,15 @@ int main()
 	}
 	fwrite(another, sizeof(char), 2048, fp);
 	fclose(fp);*/
-	//bufferTest();
+	bufferTest();
 
 	//Catalog test
 	//catalogTest();
 
 	//recordTest();
-	IndexManager m;
-	
-    return 0;
+	//IndexManager m;
+
+	return 0;
 }
 
 void bufferTest()
@@ -49,8 +49,8 @@ void bufferTest()
 	Block* next = head;
 	do
 	{
-		 next = bufferManager->getNextBlock(file, next);//fill next block OK
-	} while (next->offset < 300);
+		next = bufferManager->getNextBlock(file, next);//fill next block OK
+	} while (next->offset <= 300);
 	system("pause");//OK big data
 	//bufferManager->setDirty(*head, true);//OK
 	bufferManager->setDirty(*next, true);//OK
@@ -116,7 +116,7 @@ void recordTest()
 	*(int*)temp = 1;
 	temp += sizeof(int);
 	strcpy(temp, "Jack");
-	for(int i = 0; i < 88000; i++)
+	for (int i = 0; i < 88000; i++)
 		record->insertRecord(tableName, recordContent, 14);
 	record->deleteRecord(tableName, &attriList, &conditionList);
 	int n = record->findRecord(tableName, &attriList, &conditionList);
