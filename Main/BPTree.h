@@ -42,10 +42,9 @@ public:
 		int index;
 		bool isFound;
 	}SearchResult;
+	string fileName;
 private:
 	static BufferManager bufferManager;
-
-	string fileName;
 	Node root, leafHead;
 	int keyCount, nodeCount;
 	int level;

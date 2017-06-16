@@ -4,7 +4,6 @@
 #include "Attribute.h"
 #include <iostream>
 #include <sstream>
-#include <map>
 #include <vector>
 
 using namespace std;
@@ -12,20 +11,18 @@ using namespace std;
 class IndexManager
 {
 private:
-	map<string, BPTree<int>*> intIndices; //Filename, BTree
-	map<string, BPTree<string>*> stringIndices;
-	map<string, BPTree<float>*> floatIndices;
+	vector<BPTree<int>*> intIndices; // BTree
+	vector<BPTree<string>*> stringIndices;
+	vector<BPTree<float>*> floatIndices;
 
 	static const int FLOAT = Attribute::FLOAT;
 	static const int INT = Attribute::INT;
 
-	struct KeyTemp
-	{
-		int intTemp;
-		float floatTemp;
-		string stringTemp;
-	};
-	KeyTemp keyTemp;
+	
+	int intTemp;
+	float floatTemp;
+	string stringTemp;
+	
 
 	void setKey(int type, string key) 
 	{
@@ -33,10 +30,10 @@ private:
 		ss << key;
 		switch (type)
 		{
-		case INT: ss >> this->keyTemp.intTemp; break;
-		case FLOAT: ss >> this->keyTemp.floatTemp; break;
+		case INT: ss >> this->intTemp; break;
+		case FLOAT: ss >> this->floatTemp; break;
 		default:
-			ss >> this->keyTemp.stringTemp; break;
+			ss >> this->stringTemp; break;
 		}
 	}
 	int getKeySize(int type)

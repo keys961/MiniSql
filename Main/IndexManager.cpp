@@ -11,35 +11,28 @@ IndexManager::IndexManager()
 
 IndexManager::~IndexManager()
 {
-	map<string, BPTree<int>*>::iterator itInt = intIndices.begin();
-	map<string, BPTree<float>*>::iterator itFloat = floatIndices.begin();
-	map<string, BPTree<string>*>::iterator itString = stringIndices.begin();
-
-	for (; itInt != intIndices.end(); itInt++)
+	for (int i = intIndices.size() - 1; i >= 0; i--)
 	{
-		if (itInt->second)
-		{
-			itInt->second->write();
-			delete itInt->second;
-		}
+		if(intIndices[i])
+			intIndices[i]->write();
+		delete intIndices[i];
+		intIndices.pop_back();
 	}
 
-	for (; itFloat != floatIndices.end(); itFloat++)
+	for (int i = floatIndices.size() - 1; i >= 0; i--)
 	{
-		if (itFloat->second)
-		{
-			itFloat->second->write();
-			delete itFloat->second;
-		}
+		if(floatIndices[i])
+			floatIndices[i]->write();
+		delete floatIndices[i];
+		floatIndices.pop_back();
 	}
 
-	for (; itString != stringIndices.end(); itString++)
+	for (int i = stringIndices.size() - 1; i >= 0; i--)
 	{
-		if (itString->second)
-		{
-			itString->second->write();
-			delete itString->second;
-		}
+		if(stringIndices[i])
+			stringIndices[i]->write();
+		delete stringIndices[i];
+		stringIndices.pop_back();
 	}
 }
 
@@ -49,64 +42,52 @@ void IndexManager::createIndex(string fileName, int type)
 	int keySize = getKeySize(type);
 	int degree = 20;
 	if (type == INT)
-	{
-		BPTree<int> * tree = new BPTree<int>(fileName, keySize, degree);
-		intIndices.insert(std::pair<string, BPTree<int>*>(fileName, tree));
-	}
+		intIndices.push_back(new BPTree<int>(fileName, keySize, degree));
 	else if (type == FLOAT)
-	{
-		BPTree<float> * tree = new BPTree<float>(fileName, keySize, degree);
-		floatIndices.insert(std::pair<string, BPTree<float>*>(fileName, tree));
-	}
+		floatIndices.push_back(new BPTree<float>(fileName, keySize, degree));
 	else
-	{
-		BPTree<string> * tree = new BPTree<string>(fileName, keySize, degree);
-		stringIndices.insert(std::pair<string, BPTree<string>*>(fileName, tree));
-	}
+		stringIndices.push_back(new BPTree<string>(fileName, keySize, degree));
 }
 
 void IndexManager::dropIndex(string fileName, int type)
 {
 	if (type == INT)
 	{
-		map<string, BPTree<int>*>::iterator it = intIndices.find(fileName);
-		if (it == intIndices.end())
+		for (int i = 0; i < intIndices.size(); i++)
 		{
-			cout << "No Index Found" << endl;
-			return;
-		}
-		else
-		{
-			delete it->second;
-			intIndices.erase(it);
+			if (intIndices[i]->fileName == fileName)
+			{
+				delete intIndices[i];
+				std::vector<BPTree<int>*>::iterator it = intIndices.begin() + i;
+				intIndices.erase(it);
+				return;
+			}
 		}
 	}
 	else if (type == FLOAT)
 	{
-		map<string, BPTree<float>*>::iterator it = floatIndices.find(fileName);
-		if (it == floatIndices.end())
+		for (int i = 0; i < floatIndices.size(); i++)
 		{
-			cout << "No Index Found" << endl;
-			return;
-		}
-		else
-		{
-			delete it->second;
-			floatIndices.erase(it);
+			if (floatIndices[i]->fileName == fileName)
+			{
+				delete floatIndices[i];
+				std::vector<BPTree<float>*>::iterator it = floatIndices.begin() + i;
+				floatIndices.erase(it);
+				return;
+			}
 		}
 	}
 	else
 	{
-		map<string, BPTree<string>*>::iterator it = stringIndices.find(fileName);
-		if (it == stringIndices.end())
+		for (int i = 0; i < stringIndices.size(); i++)
 		{
-			cout << "No Index Found" << endl;
-			return;
-		}
-		else
-		{
-			delete it->second;
-			stringIndices.erase(it);
+			if (stringIndices[i]->fileName == fileName)
+			{
+				delete stringIndices[i];
+				std::vector<BPTree<string>*>::iterator it = stringIndices.begin() + i;
+				stringIndices.erase(it);
+				return;
+			}
 		}
 	}
 }
@@ -116,36 +97,30 @@ int IndexManager::searchIndex(string fileName, string key, int type)
 	setKey(type, key);
 	if (type == INT)
 	{
-		map<string, BPTree<int>*>::iterator it = intIndices.find(fileName);
-		if (it == intIndices.end())
+		for (int i = 0; i < intIndices.size(); i++)
 		{
-			cout << "No Index Found" << endl;
-			return -1;
+			if (intIndices[i]->fileName == fileName)
+				return intIndices[i]->searchKey(intTemp);
 		}
-		else
-			return it->second->searchKey(keyTemp.intTemp);
+		return -1;
 	}
 	else if (type == FLOAT)
 	{
-		map<string, BPTree<float>*>::iterator it = floatIndices.find(fileName);
-		if (it == floatIndices.end())
+		for (int i = 0; i < floatIndices.size(); i++)
 		{
-			cout << "No Index Found" << endl;
-			return -1;
+			if (floatIndices[i]->fileName == fileName)
+				return floatIndices[i]->searchKey(floatTemp);
 		}
-		else
-			return it->second->searchKey(keyTemp.floatTemp);
+		return -1;
 	}
 	else
 	{
-		map<string, BPTree<string>*>::iterator it = stringIndices.find(fileName);
-		if (it == stringIndices.end())
+		for (int i = 0; i < stringIndices.size(); i++)
 		{
-			cout << "No Index Found" << endl;
-			return -1;
+			if (stringIndices[i]->fileName == fileName)
+				return stringIndices[i]->searchKey(stringTemp);
 		}
-		else
-			return it->second->searchKey(keyTemp.stringTemp);
+		return -1;
 	}
 }
 
@@ -154,36 +129,39 @@ void IndexManager::insertKeyIntoIndex(string fileName, string key, int type, int
 	setKey(type, key);
 	if (type == INT)
 	{
-		map<string, BPTree<int>*>::iterator it = intIndices.find(fileName);
-		if (it == intIndices.end())
+		for (int i = 0; i < intIndices.size(); i++)
 		{
-			cout << "No Index Found" << endl;
-			return;
+			if (intIndices[i]->fileName == fileName)
+			{
+				intIndices[i]->insertKey(intTemp, offset);
+				return;
+			}
+			cout << "Index Not Found!" << endl;
 		}
-		else
-			it->second->insertKey(keyTemp.intTemp, offset);
 	}
 	else if (type == FLOAT)
 	{
-		map<string, BPTree<float>*>::iterator it = floatIndices.find(fileName);
-		if (it == floatIndices.end())
+		for (int i = 0; i < floatIndices.size(); i++)
 		{
-			cout << "No Index Found" << endl;
-			return ;
+			if (floatIndices[i]->fileName == fileName)
+			{
+				floatIndices[i]->insertKey(floatTemp, offset);
+				return;
+			}
+			cout << "Index Not Found!" << endl;
 		}
-		else
-			it->second->insertKey(keyTemp.floatTemp, offset);
 	}
 	else
 	{
-		map<string, BPTree<string>*>::iterator it = stringIndices.find(fileName);
-		if (it == stringIndices.end())
+		for (int i = 0; i < stringIndices.size(); i++)
 		{
-			cout << "No Index Found" << endl;
-			return;
+			if (stringIndices[i]->fileName == fileName)
+			{
+				stringIndices[i]->insertKey(stringTemp, offset);
+				return;
+			}
+			cout << "Index Not Found!" << endl;
 		}
-		else
-			it->second->insertKey(keyTemp.stringTemp, offset);
 	}
 }
 
@@ -192,35 +170,38 @@ void IndexManager::deleteKeyFromIndex(string fileName, string key, int type)
 	setKey(type, key);
 	if (type == INT)
 	{
-		map<string, BPTree<int>*>::iterator it = intIndices.find(fileName);
-		if (it == intIndices.end())
+		for (int i = 0; i < intIndices.size(); i++)
 		{
-			cout << "No Index Found" << endl;
-			return;
+			if (intIndices[i]->fileName == fileName)
+			{
+				intIndices[i]->deleteKey(intTemp);
+				return;
+			}
+			cout << "Index Not Found!" << endl;
 		}
-		else
-			it->second->deleteKey(keyTemp.intTemp);
 	}
 	else if (type == FLOAT)
 	{
-		map<string, BPTree<float>*>::iterator it = floatIndices.find(fileName);
-		if (it == floatIndices.end())
+		for (int i = 0; i < floatIndices.size(); i++)
 		{
-			cout << "No Index Found" << endl;
-			return;
+			if (floatIndices[i]->fileName == fileName)
+			{
+				floatIndices[i]->deleteKey(floatTemp);
+				return;
+			}
+			cout << "Index Not Found!" << endl;
 		}
-		else
-			it->second->deleteKey(keyTemp.floatTemp);
 	}
 	else
 	{
-		map<string, BPTree<string>*>::iterator it = stringIndices.find(fileName);
-		if (it == stringIndices.end())
+		for (int i = 0; i < stringIndices.size(); i++)
 		{
-			cout << "No Index Found" << endl;
-			return;
+			if (stringIndices[i]->fileName == fileName)
+			{
+				stringIndices[i]->deleteKey(stringTemp);
+				return;
+			}
+			cout << "Index Not Found!" << endl;
 		}
-		else
-			it->second->deleteKey(keyTemp.stringTemp);
 	}
 }
