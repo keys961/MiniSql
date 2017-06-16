@@ -92,6 +92,7 @@ File * BufferManager::getFile(const string fileName, bool pin)
 			lastBlock = btemp;
 		}
 		initBlock(*(lastBlock));//Clear last block
+		blockNum--;
 		initFile(*ftemp);//Clear file node
 	}
 	ftemp->fileName = fileName;
@@ -248,6 +249,7 @@ void BufferManager::deleteFile(const string fileName)
 	{
 		initBlock(*blockList.front());
 		blockList.pop_front();
+		blockNum--;
 	}
 	
 	initFile(*ftemp); //Clear file ptr
@@ -348,12 +350,17 @@ void BufferManager::writeAllToDisk()
 				for (btemp = ftemp->head; btemp; btemp = btemp->next)
 				{
 					if (btemp->pre)
+					{
 						initBlock(*(btemp->pre));
+						blockNum--;
+					}
 					writeToDisk(btemp->fileName, btemp);
 					lastBlock = btemp;
 				}
 				initBlock(*(lastBlock));
+				blockNum--;
 				initFile(*ftemp);
+				fileNum--;
 			}
 		}
 		filehead = nullptr;
