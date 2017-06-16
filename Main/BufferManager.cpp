@@ -6,6 +6,7 @@
 
 using namespace std;
 
+
 BufferManager::BufferManager()
 {
 	fileNum = blockNum = 0;
