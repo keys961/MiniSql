@@ -33,6 +33,7 @@ public:
 	int showRecord(string tableName, vector<Attribute>* attriList, vector<Condition> *conditionList);
 	int deleteRecord(string tableName, vector<Attribute>* attriList, vector<Condition> *conditionList);
 	//Record operation by searching by INDEX
+	Block* findBlock(string tableName, int offset);
 	int findRecordInBlock(string tableName, vector<Attribute>* attriList, vector<Condition>* conditionList, Block * block);
 	int showRecordInBlock(string tableName, vector<Attribute>* attriList, vector<Condition> *conditionList, Block* block);
 	int deleteRecordInBlock(string tableName, vector<Attribute>* attriList, vector<Condition> *conditionList, Block* block);

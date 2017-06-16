@@ -138,6 +138,12 @@ size_t RecordManager::getTypeSize(int type)
 	default: return (size_t)type;
 	}
 }
+Block * RecordManager::findBlock(string tableName, int offset)
+{
+	File* ftemp = bufferManager->getFile(tableName);
+	Block* btemp = bufferManager->getBlockByOffset(ftemp, offset);
+	return btemp;
+}
 //Find right records in a block
 //return the number of the records
 int RecordManager::findRecordInBlock(string tableName, vector<Attribute>* attriList, vector<Condition>* conditionList, Block * block)

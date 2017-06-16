@@ -122,7 +122,7 @@ Block * BufferManager::getBlock(File * file, Block * block, bool pin)
 			}
 		}//Else the last block
 	}
-	else//No empty block, use lru to replace it
+	else//No empty block, FIFO
 	{
 		for (int i = replacedBlock + 1; ; i++)
 		{
