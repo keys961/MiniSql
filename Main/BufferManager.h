@@ -3,8 +3,6 @@
 
 #include "File.h"
 
-static int replacedBlock = -1;
-
 class BufferManager
 {
 public:	
@@ -12,7 +10,7 @@ public:
 	~BufferManager();
 
 	File* getFile(const string fileName, bool pin = false);
-	Block* getBlock(File* file, Block* block, bool pin = false);
+	Block* allocBlock(File* file, Block* block, bool pin = false);
 	Block* getBlockHead(File* file);
 	Block* getNextBlock(File* file, Block* block);
 	Block* getBlockByOffset(File* file, int offset);
@@ -27,7 +25,7 @@ public:
 	{
 		return MAX_BLOCK_SIZE - sizeof(size_t);
 	}
-
+	int replacedBlock;
 private:
 	File* filehead; //Head ptr to File
 	File filePool[MAX_FILE_NUM];//Slots of file, can be tables or indices
@@ -41,5 +39,7 @@ private:
 	void writeToDisk(string fileName, Block* block);
 	void writeAllToDisk();
 };
+
+
 
 #endif // !BUFFER_MANAGER_H

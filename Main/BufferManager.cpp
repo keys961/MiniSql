@@ -18,6 +18,7 @@ BufferManager::BufferManager()
 		//frequency[i] = 0;
 		initBlock(blockPool[i]);
 	}
+	replacedBlock = -1;
 }
 
 
@@ -101,7 +102,7 @@ File * BufferManager::getFile(const string fileName, bool pin)
 //Get current block & add next block, replace block if required (not find block in para list)
 //Return the new block added (not in the para list)
 //Try not to use this function for it may cause mistakes
-Block * BufferManager::getBlock(File * file, Block * block, bool pin)
+Block * BufferManager::allocBlock(File * file, Block * block, bool pin)
 {
 	string filename = file->fileName;
 	Block* temp = NULL;//Result block
@@ -126,21 +127,26 @@ Block * BufferManager::getBlock(File * file, Block * block, bool pin)
 	{
 		for (int i = replacedBlock + 1; ; i++)
 		{
+			if (i == replacedBlock && blockPool[i].pin)
+			{
+				cout << "Cannot allocate a block in memory pool!" << endl;
+				return NULL;
+			}
 			if (i == MAX_BLOCK_NUM)
 				i = 0;
 			if (!blockPool[i].pin)
 			{
-					temp = &blockPool[i];
-					if (temp->pre)//link pre
-						temp->pre->next = temp->next;
-					if (temp->next)//link next
-						temp->next->pre = temp->pre;
-					if (temp == file->head)//Update head in file slot
-						file->head = temp->next;
-					replacedBlock = i;
-					writeToDisk(temp->fileName, temp);//Right back to disk
-					initBlock(*temp);
-					break;
+				temp = &blockPool[i];
+				if (temp->pre)//link pre
+					temp->pre->next = temp->next;
+				if (temp->next)//link next
+					temp->next->pre = temp->pre;
+				if (temp == file->head)//Update head in file slot
+					file->head = temp->next;
+				replacedBlock = i;
+				writeToDisk(temp->fileName, temp);//Right back to disk
+				initBlock(*temp);
+				break;
 			}
 		}
 	}
@@ -189,10 +195,10 @@ Block * BufferManager::getBlockHead(File * file)
 		if (file->head->offset == 0)//Head really existed
 			temp = file->head;
 		else //Reload true file head
-			temp = getBlock(file, NULL);
+			temp = allocBlock(file, NULL);
 	}
 	else
-		temp = getBlock(file, NULL);
+		temp = allocBlock(file, NULL);
 	return temp;
 }
 //Get next block (next offset)
@@ -203,14 +209,14 @@ Block * BufferManager::getNextBlock(File * file, Block * block)
 	{
 		if (block->end)
 			block->end = false;
-		return getBlock(file, block);
+		return allocBlock(file, block);
 	}
 	else
 	{
 		if (block->offset + 1 == block->next->offset)//Really exists
 			return block->next;
 		else //Reload next block
-			return getBlock(file, block);
+			return allocBlock(file, block);
 	}
 }
 //Get block by offset
@@ -244,10 +250,6 @@ void BufferManager::deleteFile(const string fileName)
 		blockList.pop_front();
 	}
 	
-	/*if (ftemp->pre)
-		ftemp->pre->next = ftemp->next;
-	if (ftemp->next)
-		ftemp->next->pre = ftemp->pre;*/
 	initFile(*ftemp); //Clear file ptr
 	fileNum -= 1;
 	if (ftemp == filehead)
@@ -275,7 +277,7 @@ void BufferManager::setPin(File & file, bool pin)
 	file.pin = pin;
 }
 
-void BufferManager::setPin(Block & block, bool pin)//If pin that means not lru
+void BufferManager::setPin(Block & block, bool pin)
 {
 	block.pin = pin;
 }
@@ -300,7 +302,6 @@ char * BufferManager::getContent(Block & block)
 //Init an unused file node
 void BufferManager::initFile(File & file)
 {
-	//file.next = file.pre = NULL;
 	file.head = NULL;
 	file.pin = false;
 	file.fileName = "";
@@ -309,8 +310,7 @@ void BufferManager::initFile(File & file)
 void BufferManager::initBlock(Block & block)
 {
 	memset(block.address, 0, MAX_BLOCK_SIZE);
-	size_t initUsage = 0;
-	memcpy(block.address, (char*)&initUsage, sizeof(size_t));//Set head, the value doesn't contain header
+	memset(block.address, 0, sizeof(size_t));//Set head, the value doesn't contain header
 	block.usedSize = sizeof(size_t);//usedSized: with header
 	block.dirty = block.pin = block.end = false;
 	block.offset = -1;//No use marked
@@ -353,7 +353,9 @@ void BufferManager::writeAllToDisk()
 					lastBlock = btemp;
 				}
 				initBlock(*(lastBlock));
+				initFile(*ftemp);
 			}
 		}
+		filehead = nullptr;
 	}
 }
