@@ -1,3 +1,4 @@
+#pragma once
 // Main.cpp : 定义控制台应用程序的入口点。
 //
 
@@ -29,12 +30,12 @@ int main()
 	}
 	fwrite(another, sizeof(char), 2048, fp);
 	fclose(fp);*/
-	bufferTest();
+	/*bufferTest();*/
 
 	//Catalog test
-	//catalogTest();
+	/*catalogTest();*/
 
-	//recordTest();
+	recordTest();
 	//IndexManager m;
 
 	return 0;
@@ -121,5 +122,7 @@ void recordTest()
 	record->deleteRecord(tableName, &attriList, &conditionList);
 	int n = record->findRecord(tableName, &attriList, &conditionList);
 	record->showRecord(tableName, &attriList, &conditionList);
+	printf("%d", catalog->getRecordSize("student"));
 	printf("%d record found\n", n);
+	system("pause");
 }
