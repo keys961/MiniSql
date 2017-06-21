@@ -54,7 +54,7 @@ public:
 	void createIndex(string fileName, int type);
 	void dropIndex(string fileName, int type);
 	int searchIndex(string fileName, string key, int type);
-	void insertKeyIntoIndex(string fileName, string key, int type, int offset);
-	void deleteKeyFromIndex(string fileName, string key, int type);
+	bool insertKeyIntoIndex(string fileName, string key, int type, int offset);
+	bool deleteKeyFromIndex(string fileName, string key, int type);
 };
 

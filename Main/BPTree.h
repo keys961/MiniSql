@@ -40,6 +40,7 @@ public:
 	{
 		Node node;
 		int index;
+		int offset;
 		bool isFound;
 	}SearchResult;
 	string fileName;
@@ -83,9 +84,10 @@ TreeNode<T>::TreeNode(int degree, bool isLeaf)
 	for (int i = 0; i <= degree; i++)
 	{
 		childs.push_back(0);
-		keys.push_back(T());
+		keys.push_back(T());//More 1 key & offset
 		offsets.push_back(0);
 	}
+	childs.push_back(0);
 }
 
 template<typename T>
@@ -168,6 +170,8 @@ int TreeNode<T>::add(T & key)
 				break;
 			}
 		}
+		if (index == -1)
+			index = count;
 		for (int i = count; i > index; i--)
 			keys[i] = keys[i - 1];
 		keys[index] = key;
@@ -198,7 +202,9 @@ int TreeNode<T>::add(T & key, int offset)//Leaf
 	{
 		int index = search(key);
 		if (index != -1)//Repeated
-			return -1;
+		{
+			return -1; //No insertion
+		}
 		for (int i = 0; i < count; i++)
 		{
 			if (keys[i] > key)
@@ -207,6 +213,8 @@ int TreeNode<T>::add(T & key, int offset)//Leaf
 				break;
 			}
 		}
+		if (index == -1)
+			index = count;
 		for (int i = count; i > index; i--)
 		{
 			keys[i] = keys[i - 1];
@@ -315,7 +323,7 @@ void BPTree<T>::write()
 			contentAddr += keySize;
 			bufferManager.setUsedSize(*btemp, contentAddr - baseAddr);
 			memcpy(contentAddr, offset, offsetSize);
-			contentAddr += keySize;
+			contentAddr += offsetSize;
 			bufferManager.setUsedSize(*btemp, contentAddr - baseAddr);
 		}
 		btemp = bufferManager.getNextBlock(file, btemp);
@@ -342,7 +350,6 @@ int BPTree<T>::searchKey(T & key)
 		return -1;
 	else
 		return res.node->offsets[res.index];
-	return 0;
 }
 
 template<typename T>
@@ -388,7 +395,7 @@ bool BPTree<T>::deleteKey(T & key)
 			int found = 0;
 			Node parent = res.node->parent;
 			found = parent->search(key);
-			while (found != -1)
+			while (found == -1)
 			{
 				if (parent->parent)
 					parent = parent->parent;
@@ -441,6 +448,7 @@ void BPTree<T>::findLeaf(Node node, T key, SearchResult& res)
 		{
 			res.node = node;
 			res.index = index;
+			res.offset = node->offsets[index];
 			res.isFound = true;
 		}
 		else
@@ -450,29 +458,31 @@ void BPTree<T>::findLeaf(Node node, T key, SearchResult& res)
 				node = node->childs[0];
 			res.node = node;
 			res.index = 0;
+			res.offset = node->offsets[0];
 			res.isFound = true;
 		}
 	}
 	else
 	{
+		for (int i = 0; i < node->count; i++)
+		{
+			if (node->keys[i] > key)
+			{
+				index = i;
+				break;
+			}
+		}
+		if (index == -1)
+			index = node->count;
 		if (node->isLeaf)
 		{
 			res.node = node;
+			res.offset = node->offsets[index];
 			res.index = index;
 			res.isFound = false;
 		}
 		else
-		{
-			for (int i = 0; i < node->count; i++)
-			{
-				if (node->keys[i] > key)
-				{
-					index = i;
-					break;
-				}
-			}
 			findLeaf(node->childs[index], key, res);
-		}
 	}
 }
 
@@ -540,7 +550,7 @@ void BPTree<T>::deleteFixUp(Node node)
 		Node sibling = NULL;
 		if (node->isLeaf)
 		{
-			int index = 0;
+			int index = -1;
 			T key = node->keys[0];
 			for (int i = 0; i < parent->count; i++)
 			{
@@ -550,6 +560,8 @@ void BPTree<T>::deleteFixUp(Node node)
 					break;
 				}
 			}
+			if (index == -1)
+				index = parent->count;
 			if ((parent->childs[0] != node) && ((index + 1) == parent->count))
 			{
 				sibling = parent->childs[index];
@@ -587,7 +599,7 @@ void BPTree<T>::deleteFixUp(Node node)
 				if (parent->childs[0] == node)
 					sibling = parent->childs[1];
 				else
-					sibling = parent->childs[index + 2];
+					sibling = parent->childs[index + 1];
 				if (sibling->count > mCount)
 				{
 					node->keys[node->count] = sibling->keys[0];
@@ -621,7 +633,7 @@ void BPTree<T>::deleteFixUp(Node node)
 		}
 		else //Internal
 		{
-			int index = 0;
+			int index = -1;
 			T key = node->childs[0]->keys[0];
 			for (int i = 0; i < parent->count; i++)
 			{
@@ -631,6 +643,8 @@ void BPTree<T>::deleteFixUp(Node node)
 					break;
 				}
 			}
+			if (index == -1)
+				index = parent->count;
 
 			if ((parent->childs[0] != node) && (index + 1 == parent->count))
 			{
@@ -665,7 +679,7 @@ void BPTree<T>::deleteFixUp(Node node)
 						sibling->childs[sibling->count + i]->parent = sibling;
 					}
 					sibling->childs[sibling->count + node->count] = node->childs[node->count];
-					sibling->childs[sibling->count + node->count]->parent = node->childs[node->count]->parent;
+					sibling->childs[sibling->count + node->count]->parent = sibling;
 					sibling->count += node->count;
 					delete node;
 					nodeCount--;

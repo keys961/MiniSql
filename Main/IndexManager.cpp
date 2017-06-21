@@ -39,6 +39,9 @@ IndexManager::~IndexManager()
 //Create an empty index with new fileName
 void IndexManager::createIndex(string fileName, int type)
 {
+	FILE *fp = fopen(fileName.c_str(), "ab+");
+	if(fp)
+		fclose(fp);
 	int keySize = getKeySize(type);
 	int degree = 20;
 	if (type == INT)
@@ -124,7 +127,7 @@ int IndexManager::searchIndex(string fileName, string key, int type)
 	}
 }
 
-void IndexManager::insertKeyIntoIndex(string fileName, string key, int type, int offset)
+bool IndexManager::insertKeyIntoIndex(string fileName, string key, int type, int offset)
 {
 	setKey(type, key);
 	if (type == INT)
@@ -133,11 +136,11 @@ void IndexManager::insertKeyIntoIndex(string fileName, string key, int type, int
 		{
 			if (intIndices[i]->fileName == fileName)
 			{
-				intIndices[i]->insertKey(intTemp, offset);
-				return;
+				return intIndices[i]->insertKey(intTemp, offset);
+				//return;
 			}
-			cout << "Index Not Found!" << endl;
 		}
+		cout << "Index Not Found!" << endl;
 	}
 	else if (type == FLOAT)
 	{
@@ -145,11 +148,11 @@ void IndexManager::insertKeyIntoIndex(string fileName, string key, int type, int
 		{
 			if (floatIndices[i]->fileName == fileName)
 			{
-				floatIndices[i]->insertKey(floatTemp, offset);
-				return;
+				return floatIndices[i]->insertKey(floatTemp, offset);
+				
 			}
-			cout << "Index Not Found!" << endl;
 		}
+		cout << "Index Not Found!" << endl;
 	}
 	else
 	{
@@ -157,15 +160,16 @@ void IndexManager::insertKeyIntoIndex(string fileName, string key, int type, int
 		{
 			if (stringIndices[i]->fileName == fileName)
 			{
-				stringIndices[i]->insertKey(stringTemp, offset);
-				return;
+				return stringIndices[i]->insertKey(stringTemp, offset);
+				//return;
 			}
-			cout << "Index Not Found!" << endl;
 		}
+		cout << "Index Not Found!" << endl;
 	}
+	return false;
 }
 
-void IndexManager::deleteKeyFromIndex(string fileName, string key, int type)
+bool IndexManager::deleteKeyFromIndex(string fileName, string key, int type)
 {
 	setKey(type, key);
 	if (type == INT)
@@ -174,11 +178,12 @@ void IndexManager::deleteKeyFromIndex(string fileName, string key, int type)
 		{
 			if (intIndices[i]->fileName == fileName)
 			{
-				intIndices[i]->deleteKey(intTemp);
-				return;
+				return intIndices[i]->deleteKey(intTemp);
+				//return;
 			}
-			cout << "Index Not Found!" << endl;
+			
 		}
+		cout << "Index Not Found!" << endl;
 	}
 	else if (type == FLOAT)
 	{
@@ -186,11 +191,12 @@ void IndexManager::deleteKeyFromIndex(string fileName, string key, int type)
 		{
 			if (floatIndices[i]->fileName == fileName)
 			{
-				floatIndices[i]->deleteKey(floatTemp);
-				return;
+				return floatIndices[i]->deleteKey(floatTemp);
+				//return;
 			}
-			cout << "Index Not Found!" << endl;
+			
 		}
+		cout << "Index Not Found!" << endl;
 	}
 	else
 	{
@@ -198,10 +204,12 @@ void IndexManager::deleteKeyFromIndex(string fileName, string key, int type)
 		{
 			if (stringIndices[i]->fileName == fileName)
 			{
-				stringIndices[i]->deleteKey(stringTemp);
-				return;
+				return stringIndices[i]->deleteKey(stringTemp);
+				//return;
 			}
-			cout << "Index Not Found!" << endl;
+			
 		}
+		cout << "Index Not Found!" << endl;
 	}
+	return false;
 }
