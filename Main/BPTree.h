@@ -599,7 +599,7 @@ void BPTree<T>::deleteFixUp(Node node)
 				if (parent->childs[0] == node)
 					sibling = parent->childs[1];
 				else
-					sibling = parent->childs[index + 1];
+					sibling = parent->childs[index + 2];
 				if (sibling->count > mCount)
 				{
 					node->keys[node->count] = sibling->keys[0];
@@ -726,6 +726,7 @@ void BPTree<T>::deleteFixUp(Node node)
 					delete sibling;
 					nodeCount--;
 					deleteFixUp(parent);
+					return;
 				}
 			}
 		}
