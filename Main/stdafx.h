@@ -10,7 +10,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <tchar.h>
-
-
-
+#include <iostream>
+#include <vector>
+#include "Attribute.h"
+#include "Condition.h"
+#include "Index.h"
 // TODO: 在此处引用程序需要的其他头文件

@@ -44,6 +44,10 @@ void IndexManager::createIndex(string fileName, int type)
 		fclose(fp);
 	int keySize = getKeySize(type);
 	int degree = 20;
+	FILE* fp = fopen(fileName.c_str(), "wb+");
+	if (!fp)
+		return;
+	fclose(fp);
 	if (type == INT)
 		intIndices.push_back(new BPTree<int>(fileName, keySize, degree));
 	else if (type == FLOAT)
