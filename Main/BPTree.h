@@ -154,7 +154,7 @@ int TreeNode<T>::add(T & key)
 {
 	if (count == 0)
 	{
-		this->keys[++count] = key;
+		this->keys[count++] = key;
 		return 0;
 	}
 	else
@@ -592,6 +592,7 @@ void BPTree<T>::deleteFixUp(Node node)
 					delete node;
 					nodeCount--;
 					deleteFixUp(parent);
+					return;
 				}
 			}
 			else
@@ -619,15 +620,16 @@ void BPTree<T>::deleteFixUp(Node node)
 						node->keys[node->count + i] = sibling->keys[i];
 						node->offsets[node->count + i] = sibling->offsets[i];
 					}
-					node->count += sibling->count;
-					node->next = sibling->next;
-					delete sibling;
-					nodeCount--;
 					if (node == parent->childs[0])
 						parent->remove(0);
 					else
 						parent->remove(index + 1);
+					node->count += sibling->count;
+					node->next = sibling->next;
+					delete sibling;
+					nodeCount--;
 					deleteFixUp(parent);
+					return;
 				}
 			}
 		}
@@ -684,6 +686,7 @@ void BPTree<T>::deleteFixUp(Node node)
 					delete node;
 					nodeCount--;
 					deleteFixUp(parent);
+					return;
 				}
 			}
 			else
@@ -749,5 +752,5 @@ BPTree<T>::BPTree(string fileName, int keySize, int degree)
 template<typename T>
 BPTree<T>::~BPTree()
 {
-	//dropTree(root);
+	dropTree(root);
 }
