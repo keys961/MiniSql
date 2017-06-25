@@ -249,7 +249,7 @@ void BufferManager::deleteFile(const string fileName)
 	{
 		initBlock(*blockList.front());
 		blockList.pop_front();
-		blockNum--;
+		//blockNum--;
 	}
 	
 	initFile(*ftemp); //Clear file ptr
