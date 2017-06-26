@@ -194,13 +194,13 @@ int RecordManager::showRecordInBlock(string tableName, vector<Attribute>* attriL
 void RecordManager::showSingleRecord(char * content, int size, vector<Attribute>* attriList)
 {
 	char* addr = content;
-	char element[255];
+	char element[256];
 	int type, typeSize;
 	for (int i = 0; i < attriList->size(); i++)
 	{
 		type = attriList->at(i).type;
 		typeSize = getTypeSize(type);
-		memset(element, 0, 255);
+		memset(element, 0, 256);
 		memcpy(element, addr, typeSize);
 		switch (type)
 		{
@@ -248,14 +248,14 @@ bool RecordManager::fitCondition(char * recordContent, int size, vector<Attribut
 
 	char* addr = recordContent;
 	string attriName;
-	char element[255];
+	char element[256];
 	int type, typeSize;
 	for (int i = 0; i < attriList->size(); i++)
 	{
 		type = attriList->at(i).type;
 		typeSize = getTypeSize(type);
 		attriName = attriList->at(i).name;
-		memset(element, 0, 255);
+		memset(element, 0, 256);
 		memcpy(element, addr, typeSize);
 		for (int j = 0; j < conditionList->size(); j++)
 		{

@@ -29,13 +29,13 @@ int main()
 		fseek(fp, 4096 * i, 0);
 	}
 	fwrite(another, sizeof(char), 2048, fp);
-	fclose(fp);*/
-	/*bufferTest();*/
+	fclose(fp);
+	bufferTest();*/
 
 	//Catalog test
 	/*catalogTest();*/
 
-	recordTest();
+	//recordTest();
 	//IndexManager m;
 
 	return 0;
