@@ -198,6 +198,10 @@ bool CatalogManager::addIndex(string indexName, string tableName, string attriNa
 //Find indexName of index is existed or not
 bool CatalogManager::findIndex(string indexName)
 {
+	FILE *fp = fopen(indexName.c_str(), "wb+");
+	if (fp)
+		return true;
+	return false;
 	File *ftemp = bufferManager->getFile("IndicesInfo");
 	Block* btemp = bufferManager->getBlockHead(ftemp);
 	while(btemp)
@@ -276,8 +280,10 @@ bool CatalogManager::dropIndex(string indexName)
 			if (index->indexName == indexName)
 			{
 				this->setIndexOnAttribute(index->tableName, index->attriName, "");//Revoke
-				for (; i < count - 1; i++)
-					*index = *(++index);//Move forward
+				for (; i < count; i++, index++)
+				{
+					*index = *(index + 1);//Move forward
+				}
 				bufferManager->setUsedSize(*btemp, bufferManager->getUsedSize(*btemp) - sizeof(Index));
 				bufferManager->setDirty(*btemp, true);
 				return true;
