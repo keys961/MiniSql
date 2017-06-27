@@ -8,7 +8,7 @@ RecordManager::RecordManager()
 
 RecordManager::~RecordManager()
 {
-	delete bufferManager;
+	//delete bufferManager;
 }
 //Create empty table file
 bool RecordManager::createTable(string tableName)

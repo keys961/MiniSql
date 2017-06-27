@@ -4,6 +4,10 @@
 
 API::API()
 {
+	 buffer = new BufferManager();
+	this->recordManager = new RecordManager(buffer);
+	this->catalogManager = new CatalogManager(buffer);
+	this->indexManager = new IndexManager();
 }
 
 bool API::createTable(string tableName, vector<Attribute>* attriList, string pKeyName, int pKeyPos)
@@ -172,4 +176,5 @@ API::~API()
 	delete catalogManager;
 	delete indexManager;
 	delete recordManager;
+	delete buffer;
 }

@@ -752,5 +752,6 @@ BPTree<T>::BPTree(string fileName, int keySize, int degree)
 template<typename T>
 BPTree<T>::~BPTree()
 {
+	//write();
 	dropTree(root);
 }

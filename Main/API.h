@@ -17,8 +17,9 @@ public:
 	bool deleteFromTable(string tableName, vector<Condition> *conditionList);
 	~API();
 private:
-	CatalogManager* catalogManager = new CatalogManager();
-	RecordManager* recordManager = new RecordManager();
-	IndexManager* indexManager = new IndexManager();
+	CatalogManager* catalogManager;
+	RecordManager* recordManager;
+	IndexManager* indexManager;
+	BufferManager* buffer;
 };
 
