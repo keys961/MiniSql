@@ -6,13 +6,15 @@
 #include "CatalogManager.h"
 #include "RecordManager.h"
 #include "IndexManager.h"
+#include "Interpreter.h"
+#include "API.h"
 //#include <string>
 using namespace std;
 
 void bufferTest();
 void catalogTest();
 void recordTest();
-
+bool  interpreterTest();
 int main()
 {
 	//Buffer test
@@ -37,10 +39,25 @@ int main()
 
 	//recordTest();
 	//IndexManager m;
-
+	cout<<interpreterTest();
+	system("pause");
 	return 0;
 }
-
+bool interpreterTest()
+{
+	Interpreter * interpreter = new Interpreter();
+	char s;
+	string ss("");
+	s = getchar();
+	while (s != ';')
+	{
+		ss = ss + s;
+		s = getchar();
+	}
+	bool flag=interpreter->Parse(ss);
+	delete interpreter;
+	return flag;
+}
 void bufferTest()
 {
 	string fileName = "TestFile2";

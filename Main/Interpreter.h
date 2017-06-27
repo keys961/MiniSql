@@ -1,5 +1,5 @@
 #pragma once
-#include <iostream>
+#include "API.h"
 using namespace std;
 class Interpreter
 {
@@ -16,6 +16,7 @@ private:
 	bool judge(char);
 	void getCondition(string&,vector<Condition>* conditionList);
 	string lowwerCase(string&);
+	API* api = new API();
 public:
 	Interpreter();
 	bool Parse(string);

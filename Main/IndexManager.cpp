@@ -39,9 +39,6 @@ IndexManager::~IndexManager()
 //Create an empty index with new fileName
 void IndexManager::createIndex(string fileName, int type)
 {
-	FILE *fp = fopen(fileName.c_str(), "ab+");
-	if(fp)
-		fclose(fp);
 	int keySize = getKeySize(type);
 	int degree = 20;
 	FILE* fp = fopen(fileName.c_str(), "wb+");

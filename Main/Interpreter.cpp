@@ -1,7 +1,7 @@
 #pragma once
+
 #include "stdafx.h"
 #include "Interpreter.h"
-#include "API.h"
 
 Interpreter::Interpreter()
 {
@@ -54,10 +54,11 @@ void Interpreter::getCondition(string&cmd,vector<Condition>* conditionList)
 bool Interpreter::getCreateTable(string& cmd)
 {
 	string tableName=getWord(cmd);
-	vector<Attribute>* attriList;
-	API* api=new API();
+	vector<Attribute> attriList;
 	Attribute attribute;
 	string word,type,foo;
+	if (getWord(cmd) != "(")
+		return false;
 	word = getWord(cmd);
 	type = getWord(cmd);
 	while (!(word == "primary"&&type == "key"))
@@ -69,8 +70,12 @@ bool Interpreter::getCreateTable(string& cmd)
 			attribute.type = attribute.FLOAT;
 		else
 		{
+			if (getWord(cmd) != "(")
+				return false;
 			foo = getWord(cmd);
-			attribute.type=atoi(foo.c_str);
+			if (getWord(cmd) != ")")
+				return false;
+			attribute.type=atoi(foo.c_str());
 		}
 		foo = "";
 		foo = getWord(cmd);
@@ -78,7 +83,7 @@ bool Interpreter::getCreateTable(string& cmd)
 			attribute.unique = 1;
 		else
 			attribute.unique = 0;
-		attriList->push_back(attribute);
+		attriList.push_back(attribute);
 		if (foo == "unique")
 		{
 			word = getWord(cmd);
@@ -90,25 +95,20 @@ bool Interpreter::getCreateTable(string& cmd)
 			type = getWord(cmd);
 		}
 	}
+	if (getWord(cmd) != "(")
+		return false;
 	word = getWord(cmd);
+	if (getWord(cmd) != ")")
+		return false;
 	int i,pos,flag=0;
-	for (i=0;i<attriList->size;i++)
-		if ((*attriList)[i].name == word)
+	for (i=0;i<attriList.size();i++)
+		if (attriList[i].name == word)
 		{
 			pos = i;
-			if (api->createTable(tableName, attriList, word, pos) == false)
-			{
-				flag = 1;
-				break;
-			}
-				
+			attriList[i].unique = 1;
+			return api->createTable(tableName, &attriList, word, pos);
 		}
-	if (i == attriList->size)
-		flag = 1;
-	delete attriList;
-	delete api;
-	return flag;
-	
+	return false;
 }
 bool Interpreter::getCreateIndex(string&cmd)
 {
@@ -122,39 +122,34 @@ bool Interpreter::getCreateIndex(string&cmd)
 	columnName = getWord(cmd);
 	if (getWord(cmd) != ")")
 		return false;
-	API* api = new API();
 	api->createIndex(indexName, tableName, columnName);
 }
 bool Interpreter::getDropTable(string&cmd)
 {
 	string tableName = getWord(cmd);
-	API* api = new API();
 	bool flag=api->dropTable(tableName);
-	delete api;
 	return flag;
 }
 bool Interpreter::getDropIndex(string&cmd)
 {
 	string indexName = getWord(cmd);
-	API* api = new API();
 	bool flag = api->dropIndex(indexName);
-	delete api;
 	return flag;
 }
 bool Interpreter::getSelect(string&cmd)
 {
+	vector<Condition> conditionList;
 	if (getWord(cmd) != "*")
 		return false;
 	if (getWord(cmd) != "from")
 		return false;
 	string tableName = getWord(cmd);
+	if (cmd == "")
+		return api->select(tableName, &conditionList);
 	if (getWord(cmd) != "where")
 		return false;
-	vector<Condition>* conditionList;
-	getCondition(cmd, conditionList);
-	API* api = new API();
-	api->select(tableName, conditionList);
-	delete api;
+	getCondition(cmd, &conditionList);
+	return api->select(tableName, &conditionList);
 }
 bool Interpreter::getInsert(string&cmd)
 {
@@ -164,9 +159,8 @@ bool Interpreter::getInsert(string&cmd)
 	tableName = getWord(cmd);
 	if (getWord(cmd) != "values")
 		return false;
-	API * api = new API();
 	string record="";
-	while (cmd.length != 0)
+	while (cmd.length()!= 0)
 	{
 		record += getWord(cmd);
 	}
@@ -175,7 +169,6 @@ bool Interpreter::getInsert(string&cmd)
 }
 bool Interpreter::getDelete(string&cmd)
 {
-	API *api = new API();
 	if (getWord(cmd) != "from")
 		return false;
 	string tableName = getWord(cmd);
@@ -275,4 +268,5 @@ bool Interpreter::Parse(string cmd)
 }
 Interpreter::~Interpreter()
 {
+	delete api;
 }

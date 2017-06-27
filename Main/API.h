@@ -1,6 +1,8 @@
 #pragma once
 #include "stdafx.h"
 #include "CatalogManager.h"
+#include "RecordManager.h"
+#include "IndexManager.h"
 using namespace std;
 class API
 {
@@ -14,5 +16,9 @@ public:
 	bool insert(string tableName, string *);
 	bool deleteFromTable(string tableName, vector<Condition> *conditionList);
 	~API();
+private:
+	CatalogManager* catalogManager = new CatalogManager();
+	RecordManager* recordManager = new RecordManager();
+	IndexManager* indexManager = new IndexManager();
 };
 
