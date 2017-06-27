@@ -6,21 +6,58 @@
 Interpreter::Interpreter()
 {
 }
-bool Interpreter::judge(char k)
-{
-	if (k == ' ' || k == '\n' || k == '\'' || k == ',')
-		return false;
-	return true;
+vector<string> Interpreter:: split(const string &s, const string &seperator) {
+	vector<string> result;
+	typedef string::size_type string_size;
+	string_size i = 0;
+
+	while (i != s.size()) {
+		//找到字符串中首个不等于分隔符的字母；
+		int flag = 0;
+		while (i != s.size() && flag == 0) {
+			flag = 1;
+			for (string_size x = 0; x < seperator.size(); ++x)
+				if (s[i] == seperator[x]) {
+					++i;
+					flag = 0;
+					break;
+				}
+		}
+
+		//找到又一个分隔符，将两个分隔符之间的字符串取出；
+		flag = 0;
+		string_size j = i;
+		while (j != s.size() && flag == 0) {
+			for (string_size x = 0; x < seperator.size(); ++x)
+				if (s[j] == seperator[x]) {
+					flag = 1;
+					break;
+				}
+			if (flag == 0)
+				++j;
+		}
+		if (i != j) {
+			result.push_back(s.substr(i, j - i));
+			i = j;
+		}
+	}
+	return result;
 }
-void Interpreter::getCondition(string&cmd,vector<Condition>* conditionList)
+//bool Interpreter::judge(char k)
+//{
+//	if (k == ' ' || k == '\n' || k == '\'' || k == ',')
+//		return false;
+//	return true;
+//}
+void Interpreter::getCondition(int k,vector<Condition>* conditionList)
 {
 	Condition * condition;
 	string attri, ope, value;
 	while (true)
 	{
-		attri = getWord(cmd);
-		ope = getWord(cmd);
-		value = getWord(cmd);
+		attri = cmd[k++];
+		ope = cmd[k++];
+		value = cmd[k++];
 		condition = new Condition(attri, value, 0);
 		if (ope == "=")
 		{
@@ -48,19 +85,18 @@ void Interpreter::getCondition(string&cmd,vector<Condition>* conditionList)
 		}
 		conditionList->push_back(*condition);
 		delete condition;
-		if (cmd.length() == 0) break;
+		if (k==cmd.size()) break;
 	}
 }
-bool Interpreter::getCreateTable(string& cmd)
+bool Interpreter::getCreateTable()
 {
-	string tableName=getWord(cmd);
+	int k = 2;
+	string tableName=cmd[k++];
 	vector<Attribute> attriList;
 	Attribute attribute;
 	string word,type,foo;
-	if (getWord(cmd) != "(")
-		return false;
-	word = getWord(cmd);
-	type = getWord(cmd);
+	word = cmd[k++];
+	type = cmd[k++];
 	while (!(word == "primary"&&type == "key"))
 	{
 		attribute.name = word;
@@ -70,36 +106,25 @@ bool Interpreter::getCreateTable(string& cmd)
 			attribute.type = attribute.FLOAT;
 		else
 		{
-			if (getWord(cmd) != "(")
-				return false;
-			foo = getWord(cmd);
-			if (getWord(cmd) != ")")
-				return false;
-			attribute.type=atoi(foo.c_str());
+			attribute.type=atoi(cmd[k++].c_str());
 		}
-		foo = "";
-		foo = getWord(cmd);
+		foo = cmd[k++];
 		if (foo == "unique")
+		{
 			attribute.unique = 1;
+			word = cmd[k++];
+			type = cmd[k++];
+		}
 		else
+		{
 			attribute.unique = 0;
-		attriList.push_back(attribute);
-		if (foo == "unique")
-		{
-			word = getWord(cmd);
-			type = getWord(cmd);
-		}
-		else
-		{
 			word = foo;
-			type = getWord(cmd);
+			type = cmd[k++];
 		}
+		attriList.push_back(attribute);
+
 	}
-	if (getWord(cmd) != "(")
-		return false;
-	word = getWord(cmd);
-	if (getWord(cmd) != ")")
-		return false;
+	word = cmd[k++];
 	int i,pos,flag=0;
 	for (i=0;i<attriList.size();i++)
 		if (attriList[i].name == word)
@@ -110,68 +135,70 @@ bool Interpreter::getCreateTable(string& cmd)
 		}
 	return false;
 }
-bool Interpreter::getCreateIndex(string&cmd)
+bool Interpreter::getCreateIndex()
 {
+	int k = 2;
 	string indexName, tableName,columnName;
-	indexName = getWord(cmd);
-	if (getWord(cmd) != "on")
+	indexName = cmd[k++];
+	if (cmd[k++] != "on")
 		return false;
-	tableName = getWord(cmd);
-	if (getWord(cmd) != "(")
-		return false;
-	columnName = getWord(cmd);
-	if (getWord(cmd) != ")")
-		return false;
+	tableName = cmd[k++];
+	columnName = cmd[k++];
 	api->createIndex(indexName, tableName, columnName);
 }
-bool Interpreter::getDropTable(string&cmd)
+bool Interpreter::getDropTable()
 {
-	string tableName = getWord(cmd);
+	int k = 2;
+	string tableName = cmd[k++];
 	bool flag=api->dropTable(tableName);
 	return flag;
 }
-bool Interpreter::getDropIndex(string&cmd)
+bool Interpreter::getDropIndex()
 {
-	string indexName = getWord(cmd);
+	int k = 2;
+	string indexName = cmd[k++];
 	bool flag = api->dropIndex(indexName);
 	return flag;
 }
-bool Interpreter::getSelect(string&cmd)
+bool Interpreter::getSelect()
 {
+	int k = 1;
 	vector<Condition> conditionList;
-	if (getWord(cmd) != "*")
+	if (cmd[k++] != "*")
 		return false;
-	if (getWord(cmd) != "from")
+	if (cmd[k++] != "from")
 		return false;
-	string tableName = getWord(cmd);
-	if (cmd == "")
+	string tableName = cmd[k++];
+	if (k==cmd.size())
 		return api->select(tableName, &conditionList);
-	if (getWord(cmd) != "where")
+	if (cmd[k++] != "where")
 		return false;
-	getCondition(cmd, &conditionList);
+	getCondition(k, &conditionList);
 	return api->select(tableName, &conditionList);
 }
-bool Interpreter::getInsert(string&cmd)
+bool Interpreter::getInsert()
 {
+	int k = 1;
 	string tableName;
-	if (getWord(cmd) != "into")
+	if (cmd[k++] != "into")
 		return false;
-	tableName = getWord(cmd);
-	if (getWord(cmd) != "values")
+	tableName = cmd[k++];
+	if (cmd[k++] != "values")
 		return false;
 	string record="";
-	while (cmd.length()!= 0)
+	vector<string> st;
+	while (k!=cmd.size())
 	{
-		record += getWord(cmd);
+		st.push_back(cmd[k++]);
 	}
-	api->insert(tableName,&record);
+	api->insert(tableName,st);
 	return 0;
 }
 bool Interpreter::getDelete(string&cmd)
 {
-	if (getWord(cmd) != "from")
+	if (getWord() != "from")
 		return false;
-	string tableName = getWord(cmd);
+	string tableName = getWord();
 	vector<Condition> *conditionList;
 	getCondition(cmd, conditionList);
 	api->deleteFromTable(tableName,conditionList);
@@ -181,51 +208,51 @@ bool Interpreter::getExecfile(string&)
 {
 	return 0;
 }
-string Interpreter::getWord(string &cmd)
-{
-	while (judge(cmd[0])==false)
-	{
-		cmd.erase(0, 1);
-	}
-	string ret = "";
-	while (cmd.length() != 0 && judge(cmd[0]) == true)
-	{
-		ret += cmd[0];
-		cmd.erase(0, 1);
-	}
-	return ret;
-}
-string Interpreter::lowwerCase(string& cmd)
+//string Interpreter::getWord(string &cmd)
+//{
+//	while (judge(cmd[0])==false)
+//	{
+//		cmd.erase(0, 1);
+//	}
+//	string ret = "";
+//	while (cmd.length() != 0 && judge(cmd[0]) == true)
+//	{
+//		ret += cmd[0];
+//		cmd.erase(0, 1);
+//	}
+//	return ret;
+//}
+string Interpreter::lowwerCase(string& st)
 {
 	int i = 0;
-	while (i < cmd.length())
+	while (i < st.length())
 	{
-		if (int(cmd[i]) >= 65 && int(cmd[i]) <= 90) cmd[i] = char(int(cmd[i]) + 32);
+		if (int(st[i]) >= 65 && int(st[i]) <= 90) st[i] = char(int(st[i]) + 32);
 		i++;
 	}
-	return cmd;
+	return st;
 }
-bool Interpreter::Parse(string cmd)
+bool Interpreter::Parse(string st)
 {
-	cmd = cmd.substr(0, cmd.find(';'));
-	cmd = lowwerCase(cmd);
-	string option = getWord(cmd);
+	string st;
+	st = lowwerCase(st);
+	cmd = split(st, " ,();'");
+	string option=cmd[0];
 	if (option == "select")
 	{
-		return getSelect(cmd);
+		return getSelect();
 	}
 	else
 	if (option == "create")
 	{
-		string word = getWord(cmd);
-		if (word == "index")
+		if (cmd[1] == "index")
 		{
-			return getCreateIndex(cmd);
+			return getCreateIndex();
 		}
 		else
-		if (word == "table")
+		if (cmd[1] == "table")
 		{
-			return getCreateTable(cmd);
+			return getCreateTable();
 		}
 		else
 			return false;
@@ -233,15 +260,14 @@ bool Interpreter::Parse(string cmd)
 	else
 	if (option == "drop")
 	{
-		string word = getWord(cmd);
-		if (word == "index")
+		if (cmd[1] == "index")
 		{
-			return getDropIndex(cmd);
+			return getDropIndex();
 		}
 		else
-		if (word == "table")
+		if (cmd[1] == "table")
 		{
-			return getDropTable(cmd);
+			return getDropTable();
 		}
 		else
 			return false;
@@ -249,17 +275,17 @@ bool Interpreter::Parse(string cmd)
 	else
 	if (option == "insert")
 	{
-		return getInsert(cmd);
+		return getInsert();
 	}
 	else
 	if (option == "delete")
 	{
-		return getDelete(cmd);
+		return getDelete();
 	}
 	else
 	if (option == "execfile")
 	{
-		return getExecfile(cmd);
+		return getExecfile(cmd[1]);
 	}
 	else
 	{

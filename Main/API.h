@@ -13,7 +13,7 @@ public:
 	bool dropTable(string tableName);
 	bool dropIndex(string indexName);
 	bool select(string tableName, vector<Condition> *conditionList);
-	bool insert(string tableName, string *);
+	bool insert(string tableName, vector<string>);
 	bool deleteFromTable(string tableName, vector<Condition> *conditionList);
 	~API();
 private:
