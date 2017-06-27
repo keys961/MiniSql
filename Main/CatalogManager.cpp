@@ -204,7 +204,7 @@ bool CatalogManager::findIndex(string indexName)
 		fclose(fp);
 		return true;
 	}
-	fclose(fp);
+	//fclose(fp);
 	return false;
 	File *ftemp = bufferManager->getFile("IndicesInfo");
 	Block* btemp = bufferManager->getBlockHead(ftemp);

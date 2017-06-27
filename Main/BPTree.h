@@ -78,7 +78,7 @@ template<typename T>
 TreeNode<T>::TreeNode(int degree, bool isLeaf)
 {
 	this->count = 0;
-	this->parent = this->parent = NULL;
+	this->parent = this->next = NULL;
 	this->isLeaf = isLeaf;
 	this->degree = degree;
 	for (int i = 0; i <= degree; i++)
@@ -264,6 +264,8 @@ void BPTree<T>::init()
 	keyCount = 0;
 	level = nodeCount = 1;
 	leafHead = root;
+	//root->count = 0;
+	//root->next = root->parent = NULL;
 }
 
 template<typename T>

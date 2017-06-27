@@ -69,6 +69,9 @@ bool API::dropIndex(string indexName)
 	{
 		return false;
 	}
+	int type = catalogManager->getIndexType(indexName);
+	catalogManager->dropIndex(indexName);
+	indexManager->dropIndex(indexName, type);
 	recordManager->dropIndex(indexName);
 
 	return flag;
