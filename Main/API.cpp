@@ -20,7 +20,7 @@ bool API::createTable(string tableName, vector<Attribute>* attriList, string pKe
 	}
 		
 	flag = catalogManager->addTable(tableName, attriList, pKeyName, pKeyPos);
-	flag = flag&&recordManager->createTable(tableName);
+	//flag = flag&&recordManager->createTable(tableName);
 	flag = flag&&createIndex(tableName + "_index", tableName, (*attriList)[pKeyPos].name);
 	return flag;
 }
@@ -58,7 +58,7 @@ bool API::dropTable(string tableName)
 		return false;
 	}
 	flag = dropIndex(tableName + "_index");
-	flag = flag&&catalogManager->dropTable(tableName);
+	flag = catalogManager->dropTable(tableName);
 	return flag;
 }
 
@@ -76,12 +76,12 @@ bool API::dropIndex(string indexName)
 bool API::select(string tableName, vector<Condition>* conditionList)
 {
 	int j,offset=-2;
-	Index* index;
+	string indexName;
 	vector<Index> indexList;
 	vector<Attribute> attriAll;
-	bool flag=catalogManager->getIndex(&indexList, tableName);
+	//bool flag=catalogManager->getIndex(&indexList, tableName);
 	int pos = (catalogManager->getAttribute(tableName, &attriAll));
-	if ((flag == false)||(pos==-1))
+	if (/*(flag == false)||*/(pos==-1))
 	{
 		return false;
 	}
@@ -90,18 +90,19 @@ bool API::select(string tableName, vector<Condition>* conditionList)
 	{
 		if ((*conditionList)[i].getOperateType()==2)
 		{
-			for (j = 0; j < indexList.size(); j++)
+			for (j = 0; j < attriAll.size(); j++)
 			{
-				index = &(indexList[j]);
-				if (index->attriName == (*conditionList)[i].getAttribute())
+				indexName = attriAll[j].indexName;
+				//if (index->attriName == (*conditionList)[i].getAttribute())
+				if(indexName != "")
 				{
-					offset=indexManager->searchIndex(index->indexName, (*conditionList)[i].getComparedValue(), index->type);
-					if ((offset == -1) && (index->attriName == pName))
+					offset=indexManager->searchIndex(indexName, (*conditionList)[i].getComparedValue(), attriAll[j].type);
+					if ((offset == -1) && (attriAll[j].name == pName))
 						return false;
 					else if (offset == -1)
 						break;
 					Block* block = recordManager->findBlock(tableName, offset);
-					flag = recordManager->showRecordInBlock(tableName, &attriAll, conditionList, block); 
+					bool flag = recordManager->showRecordInBlock(tableName, &attriAll, conditionList, block); 
 					return flag;
 				}
 			}

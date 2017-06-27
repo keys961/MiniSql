@@ -251,3 +251,5 @@ paket-files/
 .idea/
 *.sln.iml
 /Main/TestFile2
+/Main/tablename1_index
+/Main/IndicesInfo

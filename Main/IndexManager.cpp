@@ -94,6 +94,7 @@ void IndexManager::dropIndex(string fileName, int type)
 			}
 		}
 	}
+	remove(fileName.c_str());//Remove file from disk
 }
 
 int IndexManager::searchIndex(string fileName, string key, int type)
