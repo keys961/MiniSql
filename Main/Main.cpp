@@ -79,14 +79,7 @@ int main()
 
 	//recordTest();
 	//IndexManager m;
-	/*cout<<interpreterTest();*/
-	string s = "a,b*c*\nd,ne";
-	vector<string> v = split(s, ",\n*"); //可按多个字符来分隔;
-	for (int i = 0; i != v.size(); ++i)
-		cout << v[i] << " ";
-	cout << (v[0] == "select");
-	cout << endl;
-	//输出: a b c d
+	cout<<interpreterTest();
 	system("pause");
 	return 0;
 }

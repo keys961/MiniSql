@@ -194,14 +194,15 @@ bool Interpreter::getInsert()
 	api->insert(tableName,st);
 	return 0;
 }
-bool Interpreter::getDelete(string&cmd)
+bool Interpreter::getDelete()
 {
-	if (getWord() != "from")
+	int k = 1;
+	if (cmd[k++]!="from")
 		return false;
-	string tableName = getWord();
-	vector<Condition> *conditionList;
-	getCondition(cmd, conditionList);
-	api->deleteFromTable(tableName,conditionList);
+	string tableName = cmd[k++];
+	vector<Condition> conditionList;
+	getCondition(k, &conditionList);
+	api->deleteFromTable(tableName,&conditionList);
 	return true;
 }
 bool Interpreter::getExecfile(string&)
@@ -234,9 +235,8 @@ string Interpreter::lowwerCase(string& st)
 }
 bool Interpreter::Parse(string st)
 {
-	string st;
 	st = lowwerCase(st);
-	cmd = split(st, " ,();'");
+	cmd = split(st, " ,();'\n");
 	string option=cmd[0];
 	if (option == "select")
 	{

@@ -13,7 +13,6 @@ private:
 	bool getInsert();
 	bool getDelete();
 	bool getExecfile(string&);
-	bool judge(char);
 	void getCondition(int,vector<Condition>* conditionList);
 	vector<string> split(const string &s, const string &seperator);
 	string lowwerCase(string&);

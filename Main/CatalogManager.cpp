@@ -198,9 +198,13 @@ bool CatalogManager::addIndex(string indexName, string tableName, string attriNa
 //Find indexName of index is existed or not
 bool CatalogManager::findIndex(string indexName)
 {
-	FILE *fp = fopen(indexName.c_str(), "wb+");
+	FILE *fp = fopen(indexName.c_str(), "r");
 	if (fp)
+	{
+		fclose(fp);
 		return true;
+	}
+	fclose(fp);
 	return false;
 	File *ftemp = bufferManager->getFile("IndicesInfo");
 	Block* btemp = bufferManager->getBlockHead(ftemp);
