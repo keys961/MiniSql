@@ -124,7 +124,7 @@ bool API::insert(string tableName, vector<string>record)//!--todo-
 	int typesize,inttemp, size = 0;
 	float floattemp;
 	string st = "";
-	char *sss;
+	char sss[256];
 	char * recordContent = (char *)malloc(catalogManager->getRecordSize(tableName));
 	char *head = recordContent;
 	for (i = 0; i < attriList.size(); i++)
@@ -135,16 +135,18 @@ bool API::insert(string tableName, vector<string>record)//!--todo-
 			pp = attriList[i].type - record[i].length();
 			if (pp < 0)
 				return false;
-			sss = (char*)malloc(typesize);
-			for (pp = 0; pp < record[i].length(); pp++)
+			//sss = (char*)malloc(typesize);
+			memset(sss, 0, 256);
+			/*for (pp = 0; pp < record[i].length(); pp++)
 			{
 				sss[pp] = record[i][pp];
 			}
 			while (pp < typesize)
 			{
 				sss[pp++] = '0';
-			}
-			memcpy(recordContent,&sss, typesize);
+			}*/
+			memcpy(sss, record[i].c_str(), typesize);
+			memcpy(recordContent,sss, typesize);
 		}
 		else
 		if (attriList[i].type==0)
