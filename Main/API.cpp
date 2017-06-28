@@ -27,7 +27,7 @@ bool API::createTable(string tableName, vector<Attribute>* attriList, string pKe
 	if (pKeyPos>=0)
 	flag = flag&&createIndex(tableName + "_index", tableName, (*attriList)[pKeyPos].name);
 	if (flag)
-		cout << "Create table " << tableName << "successfully!" << endl;
+		cout << "Create table " << tableName << " successfully!" << endl;
 	return flag;
 }
 
@@ -63,7 +63,7 @@ bool API::createIndex(string indexName, string tableName, string attriName)
 		cout << "Add index " << indexName << " on " << attriName << " successfully!" << endl;
 	}
 	else
-		cout << "CreateIndex error!" << endl;
+		cout << "Create index error!" << endl;
 	return flag;
 }
 
@@ -132,14 +132,13 @@ bool API::select(string tableName, vector<Condition>* conditionList)
 			for (j = 0; j < attriAll.size(); j++)
 			{
 				indexName = attriAll[j].indexName;
-				//if (index->attriName == (*conditionList)[i].getAttribute())
-				if (indexName != "")
+				if (attriAll[j].name == (*conditionList)[i].getAttribute() && indexName != "")
 				{
 					offset = indexManager->searchIndex(indexName, (*conditionList)[i].getComparedValue(), attriAll[j].type);
 					if ((offset == -1) && (attriAll[j].name == pName))
 					{
 						cout << "Can't find the record match the requirement!" << endl;
-						return false;
+						return true;
 					}
 					else if (offset == -1)
 						break;
@@ -225,6 +224,7 @@ bool API::insert(string tableName, vector<string>record)//!--todo-
 			}
 		}
 	}
+	cout << "Insert succeed!" << endl;
 	return true;
 }
 
