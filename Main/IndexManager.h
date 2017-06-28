@@ -49,6 +49,7 @@ private:
 
 public:
 	IndexManager();
+	explicit IndexManager(vector<Index>& indexList);
 	~IndexManager();
 
 	void createIndex(string fileName, int type);

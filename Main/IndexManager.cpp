@@ -5,7 +5,21 @@
 
 IndexManager::IndexManager()
 {
+	//vector<Index> indexList;
+}
 
+IndexManager::IndexManager(vector<Index>& indexList)
+{
+	for (int i = 0; i < indexList.size(); i++)
+	{
+		int keySize = this->getKeySize(indexList[i].type);
+		switch (indexList[i].type)
+		{
+		case INT: this->intIndices.push_back(new BPTree<int>(indexList[i].indexName, keySize, 20)); break;
+		case FLOAT: this->floatIndices.push_back(new BPTree<float>(indexList[i].indexName, keySize, 20)); break;
+		default: this->stringIndices.push_back(new BPTree<string>(indexList[i].indexName, keySize, 20)); break;
+		}
+	}
 }
 
 
