@@ -53,7 +53,7 @@ void Interpreter::getCondition(int k,vector<Condition>* conditionList)
 {
 	//Condition * condition;
 	string attri, ope, value;
-	if (cmd[k++] != "where")
+	if (lowwerCase(cmd[k++]) != "where")
 		return;
 	while (true)
 	{
@@ -100,19 +100,19 @@ bool Interpreter::getCreateTable()
 	string word,type,foo;
 	word = cmd[k++];
 	type = cmd[k++];
-	while ((k==cmd.size())||!(word == "primary"&&type == "key"))
+	while ((k==cmd.size())||!(lowwerCase(word) == "primary"&&lowwerCase(type) == "key"))
 	{
 		attribute.name = word;
-		if (type == "int")
+		if (lowwerCase(type) == "int")
 			attribute.type = attribute.INT;
-		else if (type == "float")
+		else if (lowwerCase(type) == "float")
 			attribute.type = attribute.FLOAT;
 		else
 		{
 			attribute.type=atoi(cmd[k++].c_str());
 		}
 		foo = cmd[k++];
-		if (foo == "unique")
+		if (lowwerCase(foo) == "unique")
 		{
 			attribute.unique = 1;
 			word = cmd[k++];
@@ -147,7 +147,7 @@ bool Interpreter::getCreateIndex()
 	int k = 2;
 	string indexName, tableName,columnName;
 	indexName = cmd[k++];
-	if (cmd[k++] != "on")
+	if (lowwerCase(cmd[k++]) != "on")
 		return false;
 	tableName = cmd[k++];
 	columnName = cmd[k++];
@@ -173,12 +173,12 @@ bool Interpreter::getSelect()
 	vector<Condition> conditionList;
 	if (cmd[k++] != "*")
 		return false;
-	if (cmd[k++] != "from")
+	if (lowwerCase(cmd[k++]) != "from")
 		return false;
 	string tableName = cmd[k++];
 	if (k==cmd.size())
 		return api->select(tableName, &conditionList);
-	if (cmd[k] != "where")
+	if (lowwerCase(cmd[k]) != "where")
 		return false;
 	getCondition(k, &conditionList);
 	return api->select(tableName, &conditionList);
@@ -187,10 +187,10 @@ bool Interpreter::getInsert()
 {
 	int k = 1;
 	string tableName;
-	if (cmd[k++] != "into")
+	if (lowwerCase(cmd[k++]) != "into")
 		return false;
 	tableName = cmd[k++];
-	if (cmd[k++] != "values")
+	if (lowwerCase(cmd[k++]) != "values")
 		return false;
 	string record="";
 	vector<string> st;
@@ -203,7 +203,7 @@ bool Interpreter::getInsert()
 bool Interpreter::getDelete()
 {
 	int k = 1;
-	if (cmd[k++]!="from")
+	if (lowwerCase(cmd[k++])!="from")
 		return false;
 	string tableName = cmd[k++];
 	vector<Condition> conditionList;
@@ -257,7 +257,7 @@ string Interpreter::lowwerCase(string& st)
 }
 int Interpreter::Parse(string st)
 {
-	st = lowwerCase(st);
+	/*st = lowwerCase(st);*/
 	cmd = split(st, " ,();'\n");
 	string option=cmd[0];
 	if (option == "select")
