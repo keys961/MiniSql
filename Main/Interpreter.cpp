@@ -191,8 +191,7 @@ bool Interpreter::getInsert()
 	{
 		st.push_back(cmd[k++]);
 	}
-	api->insert(tableName,st);
-	return 0;
+	return api->insert(tableName,st);
 }
 bool Interpreter::getDelete()
 {

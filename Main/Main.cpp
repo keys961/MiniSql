@@ -54,7 +54,7 @@ vector<string> split(const string &s, const string &seperator) {
 	}
 	return result;
 }
-
+Interpreter * interpreter = new Interpreter();
 int main()
 {
 	//Buffer test
@@ -79,13 +79,17 @@ int main()
 
 	//recordTest();
 	//IndexManager m;
-	cout<<interpreterTest();
+	
+	while (interpreterTest())
+	{
+		cout << 1<<endl;
+	}
+	delete interpreter;
 	system("pause");
 	return 0;
 }
 bool interpreterTest()
 {
-	Interpreter * interpreter = new Interpreter();
 	char s;
 	string ss("");
 	s = getchar();
@@ -95,7 +99,6 @@ bool interpreterTest()
 		s = getchar();
 	}
 	bool flag=interpreter->Parse(ss);
-	delete interpreter;
 	return flag;
 }
 void bufferTest()

@@ -15,7 +15,7 @@ public:
 	bool select(string tableName, vector<Condition> *conditionList);
 	bool insert(string tableName, vector<string>);
 	bool deleteFromTable(string tableName, vector<Condition> *conditionList);
-	void getIndex(vector<Index>*, string&);
+	/*void getIndex(vector<Index>*, string&);*/
 	~API();
 private:
 	CatalogManager* catalogManager;

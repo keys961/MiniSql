@@ -44,7 +44,7 @@ bool API::createIndex(string indexName, string tableName, string attriName)
 		}
 	}
 	if (i == attriList.size())
-		flag = false;
+		return false;
 	flag = flag&&catalogManager->addIndex(indexName, tableName, attriName, type);
 	indexManager->createIndex(indexName, type);
 	return flag;
@@ -119,7 +119,8 @@ bool API::insert(string tableName, vector<string>record)//!--todo-
 {
 	vector<Attribute> attriList;
 	int i, j,pp, pos = catalogManager->getAttribute(tableName, &attriList);
-	int typesize, size = 0;
+	int typesize,inttemp, size = 0;
+	float floattemp;
 	string st = "";
 	string sss = "0";
 	char * recordContent = (char *)malloc(catalogManager->getRecordSize(tableName));
@@ -140,8 +141,16 @@ bool API::insert(string tableName, vector<string>record)//!--todo-
 			}
 		}
 		else
+		if (attriList[i].type==0)
 		{
-			memcpy(recordContent, &record[i], typesize);
+			sscanf(record[i].data(), "%d", &inttemp);
+			memcpy(recordContent, &inttemp, typesize);
+		}
+		else
+		if (attriList[i].type == -1)
+		{
+			sscanf(record[i].data(), "%f", &floattemp);
+			memcpy(recordContent, &floattemp, typesize);
 		}
 		size += typesize;
 		recordContent += typesize;
@@ -151,12 +160,12 @@ bool API::insert(string tableName, vector<string>record)//!--todo-
 	{
 		return false;
 	}
-	vector<Index>* indexList;
+	vector<Index> indexList;
 	Index* index;
-	getIndex(indexList, tableName);
-	for (i = 0; i < indexList->size(); i++)
+	catalogManager->getIndex(&indexList, tableName);
+	for (i = 0; i < indexList.size(); i++)
 	{
-		index = &(*indexList)[i];
+		index = &(indexList[i]);
 		for (j = 0; j < attriList.size(); j++)
 		{
 			if (attriList[j].name == index->attriName)
@@ -174,7 +183,7 @@ bool API::deleteFromTable(string tableName, vector<Condition> *conditionList)
 	vector<Index>* indexList;
 	vector<Attribute>* attriList;
 	Index* index;
-	getIndex(indexList, tableName);
+	catalogManager->getIndex(indexList, tableName);
 	catalogManager->getAttribute(tableName, attriList);
 	int i, j;
 	//for (i = 0; i < indexList->size; i++)
@@ -191,20 +200,20 @@ bool API::deleteFromTable(string tableName, vector<Condition> *conditionList)
 	//}
 	return recordManager->deleteRecord(tableName, attriList, conditionList);
 }
-void API::getIndex(vector<Index>* indexList, string& tableName)
-{
-	vector<Attribute> attriList;
-	Index * index;
-	catalogManager->getAttribute(tableName, &attriList);
-	for (int i = 0; i < attriList.size(); i++)
-	{
-		if (attriList[i].indexName != "")
-		{
-			Index index(attriList[i].indexName, tableName, attriList[i].name, attriList[i].type);
-			indexList->push_back(index);
-		}
-	}
-}
+//void API::getIndex(vector<Index>* indexList, string& tableName)
+//{
+//	vector<Attribute> attriList;
+//	Index * index;
+//	catalogManager->getAttribute(tableName, &attriList);
+//	for (int i = 0; i < attriList.size(); i++)
+//	{
+//		if (attriList[i].indexName != "")
+//		{
+//			Index index(attriList[i].indexName, tableName, attriList[i].name, attriList[i].type);
+//			indexList->push_back(index);
+//		}
+//	}
+//}
 
 API::~API()
 {
