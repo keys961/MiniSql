@@ -27,7 +27,7 @@ bool API::createTable(string tableName, vector<Attribute>* attriList, string pKe
 	if (pKeyPos>=0)
 	flag = flag&&createIndex(tableName + "_index", tableName, (*attriList)[pKeyPos].name);
 	if (flag)
-		cout << "Create table " << tableName << "successfully!" << endl;
+		cout << "Create table " << tableName << " successfully!" << endl;
 	return flag;
 }
 
@@ -46,6 +46,12 @@ bool API::createIndex(string indexName, string tableName, string attriName)
 	{
 		if (attriList[i].name == attriName)
 		{
+			if (attriList[i].unique == 0)
+			{
+				cout << "Attribute must be unique!" << endl;
+				return false;
+			}
+				
 			type = attriList[i].type;
 			break;
 		}

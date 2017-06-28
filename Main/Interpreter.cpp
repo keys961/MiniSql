@@ -111,6 +111,8 @@ bool Interpreter::getCreateTable()
 		{
 			attribute.type=atoi(cmd[k++].c_str());
 		}
+		if (k == cmd.size())
+			break;
 		foo = cmd[k++];
 		if (lowwerCase(foo) == "unique")
 		{
