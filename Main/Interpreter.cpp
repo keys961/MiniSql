@@ -53,6 +53,8 @@ void Interpreter::getCondition(int k,vector<Condition>* conditionList)
 {
 	Condition * condition;
 	string attri, ope, value;
+	if (cmd[k++] != "where")
+		return;
 	while (true)
 	{
 		attri = cmd[k++];
@@ -285,6 +287,12 @@ bool Interpreter::Parse(string st)
 	if (option == "execfile")
 	{
 		return getExecfile(cmd[1]);
+	}
+	else
+	if (option =="quit")
+	{
+		cout << "bye!" << endl;
+		return false;
 	}
 	else
 	{

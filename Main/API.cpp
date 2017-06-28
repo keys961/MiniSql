@@ -7,7 +7,9 @@ API::API()
 	buffer = new BufferManager();
 	this->recordManager = new RecordManager(buffer);
 	this->catalogManager = new CatalogManager(buffer);
-	this->indexManager = new IndexManager();
+	vector<Index> indexAll;
+	catalogManager->getIndex(&indexAll);
+	this->indexManager = new IndexManager(indexAll);
 }
 
 bool API::createTable(string tableName, vector<Attribute>* attriList, string pKeyName, int pKeyPos)
@@ -122,7 +124,7 @@ bool API::insert(string tableName, vector<string>record)//!--todo-
 	int typesize,inttemp, size = 0;
 	float floattemp;
 	string st = "";
-	string sss = "0";
+	char *sss;
 	char * recordContent = (char *)malloc(catalogManager->getRecordSize(tableName));
 	char *head = recordContent;
 	for (i = 0; i < attriList.size(); i++)
@@ -133,12 +135,16 @@ bool API::insert(string tableName, vector<string>record)//!--todo-
 			pp = attriList[i].type - record[i].length();
 			if (pp < 0)
 				return false;
-			memcpy(recordContent,&record[i], record[i].length());
-			while (pp > 0)
+			sss = (char*)malloc(typesize);
+			for (pp = 0; pp < record[i].length(); pp++)
 			{
-				memcpy(recordContent, &sss, 1);
-				pp--;
+				sss[pp] = record[i][pp];
 			}
+			while (pp < typesize)
+			{
+				sss[pp++] = '0';
+			}
+			memcpy(recordContent,&sss, typesize);
 		}
 		else
 		if (attriList[i].type==0)
@@ -180,11 +186,11 @@ bool API::insert(string tableName, vector<string>record)//!--todo-
 
 bool API::deleteFromTable(string tableName, vector<Condition> *conditionList)
 {
-	vector<Index>* indexList;
-	vector<Attribute>* attriList;
+	vector<Index> indexList;
+	vector<Attribute> attriList;
 	Index* index;
-	catalogManager->getIndex(indexList, tableName);
-	catalogManager->getAttribute(tableName, attriList);
+	catalogManager->getIndex(&indexList, tableName);
+	catalogManager->getAttribute(tableName, &attriList);
 	int i, j;
 	//for (i = 0; i < indexList->size; i++)
 	//{
@@ -198,7 +204,7 @@ bool API::deleteFromTable(string tableName, vector<Condition> *conditionList)
 	//		}
 	//	}
 	//}
-	return recordManager->deleteRecord(tableName, attriList, conditionList);
+	return recordManager->deleteRecord(tableName, &attriList, conditionList);
 }
 //void API::getIndex(vector<Index>* indexList, string& tableName)
 //{
