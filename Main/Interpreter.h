@@ -1,5 +1,6 @@
 #pragma once
 #include "API.h"
+
 using namespace std;
 class Interpreter
 {
@@ -20,7 +21,7 @@ private:
 	vector<string> cmd;
 public:
 	Interpreter();
-	bool Parse(string);
+	int Parse(string);
 	~Interpreter();
 };
 

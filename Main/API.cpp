@@ -18,12 +18,16 @@ bool API::createTable(string tableName, vector<Attribute>* attriList, string pKe
 	bool flag = catalogManager->findTable(tableName);
 	if (flag == true)
 	{
+		cout << "Table already exists!" << endl;
 		return false;
 	}
 
 	flag = catalogManager->addTable(tableName, attriList, pKeyName, pKeyPos);
 	//flag = flag&&recordManager->createTable(tableName);
+	if (pKeyPos>=0)
 	flag = flag&&createIndex(tableName + "_index", tableName, (*attriList)[pKeyPos].name);
+	if (flag)
+		cout << "Create table " << tableName << "successfully!" << endl;
 	return flag;
 }
 
@@ -34,6 +38,7 @@ bool API::createIndex(string indexName, string tableName, string attriName)
 	int i, type;
 	if (catalogManager->findIndex(indexName) == true)
 	{
+		cout << "Index already exists!" << endl;
 		return false;
 	}
 	catalogManager->getAttribute(tableName, &attriList);
@@ -46,9 +51,19 @@ bool API::createIndex(string indexName, string tableName, string attriName)
 		}
 	}
 	if (i == attriList.size())
+	{
+		cout << "Attribute not found!!" << endl;
 		return false;
+	}
+		
 	flag = flag&&catalogManager->addIndex(indexName, tableName, attriName, type);
 	indexManager->createIndex(indexName, type);
+	if (flag)
+	{
+		cout << "Add index " << indexName << "on " << attriName << " successfully!" << endl;
+	}
+	else
+		cout << "CreateIndex error!" << endl;
 	return flag;
 }
 
@@ -57,10 +72,21 @@ bool API::dropTable(string tableName)
 	bool flag = catalogManager->findTable(tableName);
 	if (flag == false)
 	{
+		cout << "Table doesn't exist!" << endl;
 		return false;
 	}
 	flag = dropIndex(tableName + "_index");
+	if (!flag)
+		return false;
 	flag = catalogManager->dropTable(tableName);
+	if (flag)
+	{
+		cout << "Drop table " << tableName << " successfully" << endl;
+	}
+	else
+	{
+		cout << "Drop table " << tableName << " failed!" << endl;
+	}
 	return flag;
 }
 
@@ -69,29 +95,36 @@ bool API::dropIndex(string indexName)
 	bool flag = catalogManager->findIndex(indexName);
 	if (flag == false)
 	{
+		cout << "Index doesn't exist!" << endl;
 		return false;
 	}
 	int type = catalogManager->getIndexType(indexName);
-	catalogManager->dropIndex(indexName);
+	flag=flag&&catalogManager->dropIndex(indexName);
 	indexManager->dropIndex(indexName, type);
-	recordManager->dropIndex(indexName);
-
+	flag = flag&&recordManager->dropIndex(indexName);
+	if (flag)
+	{
+		cout << "Drop index " << indexName<< "successfully!" << endl;
+	}
+	else
+	{
+		cout << "Drop index " << indexName << "failed!" << endl;
+	}
 	return flag;
 }
 
 bool API::select(string tableName, vector<Condition>* conditionList)
 {
 	int j, offset = -2;
+	int flag;
 	string indexName;
 	vector<Index> indexList;
 	vector<Attribute> attriAll;
 	//bool flag=api->getIndex(&indexList, tableName);
 	int pos = (catalogManager->getAttribute(tableName, &attriAll));
-	if (/*(flag == false)||*/(pos == -1))
-	{
-		return false;
-	}
-	string pName = attriAll[pos].name;
+	string pName="";
+	if (pos!=-1)
+		pName = attriAll[pos].name;
 	for (int i = 0; i < (*conditionList).size(); i++)
 	{
 		if ((*conditionList)[i].getOperateType() == 2)
@@ -104,17 +137,23 @@ bool API::select(string tableName, vector<Condition>* conditionList)
 				{
 					offset = indexManager->searchIndex(indexName, (*conditionList)[i].getComparedValue(), attriAll[j].type);
 					if ((offset == -1) && (attriAll[j].name == pName))
+					{
+						cout << "Can't find the record match the requirement!" << endl;
 						return false;
+					}
 					else if (offset == -1)
 						break;
 					Block* block = recordManager->findBlock(tableName, offset);
-					bool flag = recordManager->showRecordInBlock(tableName, &attriAll, conditionList, block);
-					return flag;
+					flag = recordManager->showRecordInBlock(tableName, &attriAll, conditionList, block);
+					cout << "Find " << flag << " records in the table." << endl;
+					return true;
 				}
 			}
 		}
 	}
-	return recordManager->showRecord(tableName, &attriAll, conditionList);
+	cout << "Find " << flag << " records in the table." << endl;
+	flag=recordManager->showRecord(tableName, &attriAll, conditionList);
+	return true;
 }
 
 bool API::insert(string tableName, vector<string>record)//!--todo-
@@ -166,6 +205,7 @@ bool API::insert(string tableName, vector<string>record)//!--todo-
 	int offset = recordManager->insertRecord(tableName, head, size);
 	if (offset == -1)
 	{
+		cout << "Insert failed!" << endl;
 		return false;
 	}
 	vector<Index> indexList;
@@ -179,6 +219,7 @@ bool API::insert(string tableName, vector<string>record)//!--todo-
 			if (attriList[j].name == index->attriName)
 			{
 				indexManager->insertKeyIntoIndex(index->indexName, record[j], attriList[j].type, offset);
+				cout << "Add into " << index->indexName << " successfully!" << endl;
 				break;
 			}
 		}
@@ -191,7 +232,13 @@ bool API::deleteFromTable(string tableName, vector<Condition> *conditionList)
 	vector<Index> indexList;
 	vector<Attribute> attriList;
 	Index* index;
-	catalogManager->getIndex(&indexList, tableName);
+	int flag;
+	if (catalogManager->findTable(tableName) == false)
+	{
+		cout << "Table doesn't exist!" << endl;
+		return false;
+	}
+	/*catalogManager->getIndex(&indexList, tableName);*/
 	catalogManager->getAttribute(tableName, &attriList);
 	int i, j;
 	//for (i = 0; i < indexList->size; i++)
@@ -206,7 +253,9 @@ bool API::deleteFromTable(string tableName, vector<Condition> *conditionList)
 	//		}
 	//	}
 	//}
-	return recordManager->deleteRecord(tableName, &attriList, conditionList);
+	flag=recordManager->deleteRecord(tableName, &attriList, conditionList);
+	cout << "Delete " << flag << " records!" << endl;
+	return true;
 }
 //void API::getIndex(vector<Index>* indexList, string& tableName)
 //{

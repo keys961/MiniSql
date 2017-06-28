@@ -14,7 +14,7 @@ using namespace std;
 void bufferTest();
 void catalogTest();
 void recordTest();
-bool  interpreterTest();
+int  interpreterTest();
 
 
 vector<string> split(const string &s, const string &seperator) {
@@ -55,7 +55,7 @@ vector<string> split(const string &s, const string &seperator) {
 	return result;
 }
 Interpreter * interpreter = new Interpreter();
-int main()
+int main(int argc,char *argv[])
 {
 	//Buffer test
 	/*FILE *fp = fopen("TestFile2", "wb+");
@@ -79,16 +79,27 @@ int main()
 
 	//recordTest();
 	//IndexManager m;
-	
-	while (interpreterTest())
+	int c;
+	if (argc == 3)
 	{
-		cout << 1<<endl;
+		freopen(argv[1], "r", stdin);
+		freopen(argv[2], "w", stdout);
+	}
+	
+	while (c=interpreterTest())
+	{
+		if (c == -1)
+			break;
 	}
 	delete interpreter;
-	system("pause");
+	if (argc == 3)
+	{
+		fclose(stdin);
+		fclose(stdout);
+	}
 	return 0;
 }
-bool interpreterTest()
+int interpreterTest()
 {
 	char s;
 	string ss("");
@@ -98,7 +109,7 @@ bool interpreterTest()
 		ss = ss + s;
 		s = getchar();
 	}
-	bool flag=interpreter->Parse(ss);
+	int flag=interpreter->Parse(ss);
 	return flag;
 }
 void bufferTest()

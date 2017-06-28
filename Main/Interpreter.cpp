@@ -99,7 +99,7 @@ bool Interpreter::getCreateTable()
 	string word,type,foo;
 	word = cmd[k++];
 	type = cmd[k++];
-	while (!(word == "primary"&&type == "key"))
+	while ((k==cmd.size())||!(word == "primary"&&type == "key"))
 	{
 		attribute.name = word;
 		if (type == "int")
@@ -125,6 +125,10 @@ bool Interpreter::getCreateTable()
 		}
 		attriList.push_back(attribute);
 
+	}
+	if (k == cmd.size())
+	{
+		return api->createTable(tableName, &attriList, "", -1);
 	}
 	word = cmd[k++];
 	int i,pos,flag=0;
@@ -206,9 +210,25 @@ bool Interpreter::getDelete()
 	api->deleteFromTable(tableName,&conditionList);
 	return true;
 }
-bool Interpreter::getExecfile(string&)
+bool Interpreter::getExecfile(string&fileName)
 {
-	return 0;
+	char s;
+	string ss("");
+	char sss[256];
+	memset(sss, 0, 256);
+	memcpy(sss, fileName.c_str(),fileName.length());
+	freopen(sss, "r", stdin);
+	while (true)
+	{
+		s = getchar();
+		ss = "";
+		while (s != ';')
+		{
+			ss = ss + s;
+			s = getchar();
+		}
+		Parse(ss);
+	}
 }
 //string Interpreter::getWord(string &cmd)
 //{
@@ -234,7 +254,7 @@ string Interpreter::lowwerCase(string& st)
 	}
 	return st;
 }
-bool Interpreter::Parse(string st)
+int Interpreter::Parse(string st)
 {
 	st = lowwerCase(st);
 	cmd = split(st, " ,();'\n");
@@ -256,7 +276,7 @@ bool Interpreter::Parse(string st)
 			return getCreateTable();
 		}
 		else
-			return false;
+			return 0;
 	}
 	else
 	if (option == "drop")
@@ -271,7 +291,7 @@ bool Interpreter::Parse(string st)
 			return getDropTable();
 		}
 		else
-			return false;
+			return 0;
 	}
 	else
 	if (option == "insert")
@@ -292,11 +312,11 @@ bool Interpreter::Parse(string st)
 	if (option =="quit")
 	{
 		cout << "bye!" << endl;
-		return false;
+		return -1;
 	}
 	else
 	{
-		return false;
+		return 0;
 	}
 }
 Interpreter::~Interpreter()

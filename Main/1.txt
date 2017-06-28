@@ -1,0 +1,4 @@
+create table tablename1 (
+name1 int,
+primary key ( name1 )
+);
