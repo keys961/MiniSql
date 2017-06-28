@@ -51,7 +51,7 @@ vector<string> Interpreter:: split(const string &s, const string &seperator) {
 //}
 void Interpreter::getCondition(int k,vector<Condition>* conditionList)
 {
-	Condition * condition;
+	//Condition * condition;
 	string attri, ope, value;
 	if (cmd[k++] != "where")
 		return;
@@ -60,34 +60,35 @@ void Interpreter::getCondition(int k,vector<Condition>* conditionList)
 		attri = cmd[k++];
 		ope = cmd[k++];
 		value = cmd[k++];
-		condition = new Condition(attri, value, 0);
+		Condition condition (attri, value, 0);
 		if (ope == "=")
 		{
-			condition->setOperateType(2);
+			condition.setOperateType(2);
 		}
 		else if (ope == "<>")
 		{
-			condition->setOperateType(-1);
+			condition.setOperateType(-1);
 		}
 		else if (ope == "<")
 		{
-			condition->setOperateType(0);
+			condition.setOperateType(0);
 		}
 		else if (ope == ">")
 		{
-			condition->setOperateType(4);
+			condition.setOperateType(4);
 		}
 		else if (ope == "<=")
 		{
-			condition->setOperateType(1);
+			condition.setOperateType(1);
 		}
 		else if (ope == ">=")
 		{
-			condition->setOperateType(3);
+			condition.setOperateType(3);
 		}
-		conditionList->push_back(*condition);
-		delete condition;
-		if (k==cmd.size()) break;
+		conditionList->push_back(condition);
+		k++;
+		//delete condition;
+		if (k>=cmd.size()) break;
 	}
 }
 bool Interpreter::getCreateTable()
@@ -177,7 +178,7 @@ bool Interpreter::getSelect()
 	string tableName = cmd[k++];
 	if (k==cmd.size())
 		return api->select(tableName, &conditionList);
-	if (cmd[k++] != "where")
+	if (cmd[k] != "where")
 		return false;
 	getCondition(k, &conditionList);
 	return api->select(tableName, &conditionList);

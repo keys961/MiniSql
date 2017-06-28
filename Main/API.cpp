@@ -60,7 +60,7 @@ bool API::createIndex(string indexName, string tableName, string attriName)
 	indexManager->createIndex(indexName, type);
 	if (flag)
 	{
-		cout << "Add index " << indexName << "on " << attriName << " successfully!" << endl;
+		cout << "Add index " << indexName << " on " << attriName << " successfully!" << endl;
 	}
 	else
 		cout << "CreateIndex error!" << endl;
@@ -104,11 +104,11 @@ bool API::dropIndex(string indexName)
 	flag = flag&&recordManager->dropIndex(indexName);
 	if (flag)
 	{
-		cout << "Drop index " << indexName<< "successfully!" << endl;
+		cout << "Drop index " << indexName<< " successfully!" << endl;
 	}
 	else
 	{
-		cout << "Drop index " << indexName << "failed!" << endl;
+		cout << "Drop index " << indexName << " failed!" << endl;
 	}
 	return flag;
 }
@@ -151,8 +151,9 @@ bool API::select(string tableName, vector<Condition>* conditionList)
 			}
 		}
 	}
-	cout << "Find " << flag << " records in the table." << endl;
+	
 	flag=recordManager->showRecord(tableName, &attriAll, conditionList);
+	cout << "Find " << flag << " records in the table." << endl;
 	return true;
 }
 
