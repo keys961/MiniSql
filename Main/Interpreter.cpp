@@ -52,6 +52,7 @@ vector<string> Interpreter:: split(const string &s, const string &seperator) {
 void Interpreter::getCondition(int k,vector<Condition>* conditionList)
 {
 	//Condition * condition;
+	conditionList->clear();
 	string attri, ope, value;
 	if (lowwerCase(cmd[k++]) != "where")
 		return;
@@ -84,6 +85,10 @@ void Interpreter::getCondition(int k,vector<Condition>* conditionList)
 		else if (ope == ">=")
 		{
 			condition.setOperateType(3);
+		}
+		else if (ope == "!=")
+		{
+			condition.setOperateType(Condition::INEQUAL);
 		}
 		conditionList->push_back(condition);
 		k++;
