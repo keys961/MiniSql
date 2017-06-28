@@ -15,9 +15,9 @@ IndexManager::IndexManager(vector<Index>& indexList)
 		int keySize = this->getKeySize(indexList[i].type);
 		switch (indexList[i].type)
 		{
-		case INT: this->intIndices.push_back(new BPTree<int>(indexList[i].indexName, keySize, 20)); break;
-		case FLOAT: this->floatIndices.push_back(new BPTree<float>(indexList[i].indexName, keySize, 20)); break;
-		default: this->stringIndices.push_back(new BPTree<string>(indexList[i].indexName, keySize, 20)); break;
+		case INT: this->intIndices.push_back(new BPTree<int>(indexList[i].indexName, keySize, 19)); break;
+		case FLOAT: this->floatIndices.push_back(new BPTree<float>(indexList[i].indexName, keySize, 19)); break;
+		default: this->stringIndices.push_back(new BPTree<string>(indexList[i].indexName, keySize, 19)); break;
 		}
 	}
 }
@@ -54,7 +54,7 @@ IndexManager::~IndexManager()
 void IndexManager::createIndex(string fileName, int type)
 {
 	int keySize = getKeySize(type);
-	int degree = 20;
+	int degree = 19;
 	FILE* fp = fopen(fileName.c_str(), "wb+");
 	if (!fp)
 		return;
