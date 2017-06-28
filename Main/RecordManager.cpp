@@ -204,13 +204,13 @@ void RecordManager::showSingleRecord(char * content, int size, vector<Attribute>
 		memcpy(element, addr, typeSize);
 		switch (type)
 		{
-		case Attribute::INT: printf("%d ", *(int*)element); break;
-		case Attribute::FLOAT: printf("%f ", *(float*)element); break;
-		default: printf("%s ", element);
+		case Attribute::INT: printf("| %d ", *(int*)element); break;
+		case Attribute::FLOAT: printf("| %f ", *(float*)element); break;
+		default: printf("| %s ", element);
 		}
 		addr += typeSize;
 	}
-	printf("\n");
+	printf("|\n");
 }
 int RecordManager::deleteRecordInBlock(string tableName, vector<Attribute>* attriList, vector<Condition>* conditionList, Block * block)
 {
