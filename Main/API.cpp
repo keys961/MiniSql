@@ -230,7 +230,7 @@ bool API::insert(string tableName, vector<string>record)//!--todo-
 			}
 		}
 	}
-	cout << "Insert succeed!" << endl;
+	cout << "Insert successfully!" << endl;
 	return true;
 }
 
